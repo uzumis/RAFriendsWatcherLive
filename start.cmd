@@ -1,18 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Checa e atualiza a branch release se houver mudanças
-echo Verificando atualizações na branch release do GitHub...
-git fetch origin release
-git diff --quiet release origin/release
-if not %errorlevel%==0 (
-    echo Atualizações encontradas! Atualizando arquivos...
-    git merge origin/release
-    echo Atualização concluída!
-) else (
-    echo Nenhuma atualização encontrada na branch release.
-)
-
 :: Verifica e cria arquivos JSON necessários
 set JSONFILES=userData.json chievoData.json players.json
 for %%F in (%JSONFILES%) do (
