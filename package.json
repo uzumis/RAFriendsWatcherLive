@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "@retroachievements/api": "^2.5.0",
+    "@vitalets/google-translate-api": "^9.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "env": "^0.0.2",
+    "express": "^5.1.0"
+  },
+  "type": "module",
+  "name": "retroachievementsgroupwatcher",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

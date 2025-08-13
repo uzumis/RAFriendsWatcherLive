@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Achievement History</title>
+  <link rel="stylesheet" href="./css/checkHistory.css">
+  <script src="./API/checkHistory.js"></script>
+</head>
+
+<body>
+  <div id="sidekick-menu">
+    <!-- Botão para apagar o cache dos jogadores -->
+    <button id="clear-cache">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/delete-database.png" alt="Apagar Cache"
+        title="Apagar Cache dos Jogadores">
+    </button>
+
+    <!-- Botão para limpar o histórico de jogadores -->
+    <button id="clear-history">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/erase.png" alt="Limpar Histórico"
+        title="Limpar Histórico de Conquistas">
+    </button>
+
+    <!-- Botão para gerenciar jogadores -->
+    <button id="manage-players">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Cog-scripted-svg-white.svg"
+        alt="Gerenciar Jogadores" title="Gerenciar Jogadores">
+    </button>
+  </div>
+
+  <!-- Modal para gerenciar jogadores -->
+  <div id="player-modal"
+    style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #23283a; padding: 20px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18); z-index: 1000; width: 400px;">
+    <h2 style="color: #ffd700; text-align: center;">Gerenciar Jogadores</h2>
+    <ul id="player-list" style="list-style: none; padding: 0; margin: 20px 0; max-height: 300px; overflow-y: auto;">
+    </ul>
+    <input id="new-player-name" type="text" placeholder="Novo jogador"
+      style="width: calc(100% - 20px); padding: 10px; margin-bottom: 10px; border-radius: 8px; border: none;">
+    <button id="add-player"
+      style="width: 100%; padding: 10px; background: #2e3650; color: #fff; border: none; border-radius: 8px; cursor: pointer;">Adicionar
+      Jogador</button>
+    <button id="close-modal"
+      style="width: 100%; padding: 10px; background: #3a4260; color: #fff; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">Fechar</button>
+  </div>
+
+  <div id="leaderboard">
+    <h1>Tabela de Conquistadores</h1>
+    <ul class="leadeboard__container"></ul>
+  </div>
+
+  <div style="flex: 1; padding: 20px;">
+    <h2>MOMENTO COMUNIDADE!!!</h2>
+    <ul id="conquistas-list"></ul>
+  </div>
+</body>
+
+</html>

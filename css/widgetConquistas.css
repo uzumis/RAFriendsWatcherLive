@@ -1,0 +1,86 @@
+body {
+  background: transparent;
+  color: #f2f2f2;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-width: 180px;
+  min-height: 1px;
+}
+#widget-conquistas {
+  max-width: 220px;
+  min-width: 180px;
+  width: 100%;
+  min-height: 220px;
+  max-height: 320px; /* Tamanho máximo do container */
+  height: 300px;     /* Altura padrão */
+  margin: 0 auto;
+  padding: 0 2px;
+  list-style: none;
+  box-sizing: border-box;
+  overflow-y: auto;
+  font-size: clamp(0.85rem, 2vw, 1rem); /* Fonte responsiva */
+}
+#widget-conquistas li {
+  background: #23283a;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  padding: 4px 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  font-size: 1em; /* Herdado do container, ajusta automaticamente */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #fffbe7;
+  transition: background 0.3s, box-shadow 0.3s;
+  word-break: break-word;
+  box-sizing: border-box;
+  opacity: 1;
+}
+.widget-fadein {
+  animation: widgetFadeIn 0.7s ease;
+}
+@keyframes widgetFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+#widget-conquistas strong {
+  font-size: clamp(10px, 1.2em, 14px);
+  color: #ffd700;
+  font-weight: bold;
+}
+#widget-conquistas small {
+  font-size: clamp(8px, 0.9em, 11px);
+  color: #fafafa;
+  font-weight: bold;
+}
+#widget-conquistas li.platinum strong {
+  color: #000;
+}
+#widget-conquistas li.platinum {
+  background: #ffd700;
+  border: 1px solid #ffea00;
+  box-shadow: 0 0 6px 2px #ffea00;
+  color: #000;
+}
+#widget-conquistas img {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  margin-right: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  flex-shrink: 0;
+}
+.widget-title {
+  text-align: center;
+  font-size: 0.95rem;
+  color: #ffd700;
+  margin: 4px 0 6px 0;
+  letter-spacing: 1px;
+}

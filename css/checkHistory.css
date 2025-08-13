@@ -1,0 +1,210 @@
+body {
+  background: #181c24;
+  color: #f2f2f2;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+h1,
+h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-top: 32px;
+  color: #ffd700;
+  letter-spacing: 2px;
+}
+
+#conquistas-list {
+  max-width: 98vw;
+  width: 100%;
+  margin: 24px auto;
+  padding: 0 8px;
+  list-style: none;
+  box-sizing: border-box;
+}
+
+#conquistas-list li {
+  border-radius: 18px;
+  margin-bottom: 24px;
+  padding: 18px 10px;
+  font-size: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  border: 2px solid #fffbe7;
+  transition: background 0.3s, box-shadow 0.3s;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+@media (min-width: 600px) {
+  #conquistas-list li {
+    flex-direction: row;
+    font-size: 1.3rem;
+    padding: 24px 18px;
+    gap: 28px;
+  }
+  #conquistas-list {
+    max-width: 700px;
+    padding: 0;
+  }
+}
+
+#leaderboard {
+  position: static;
+  margin: 0 auto 16px auto;
+  width: 100%;
+  max-width: 98vw;
+  border-radius: 18px;
+  padding: 12px 8px;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+@media (min-width: 600px) {
+  #leaderboard {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 350px;
+    padding: 24px;
+  }
+}
+
+#leaderboard li {
+  border-radius: 14px;
+  margin-bottom: 10px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  border: 2px solid #fffbe7;
+  transition: background 0.3s, box-shadow 0.3s;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+@media (min-width: 600px) {
+  #leaderboard li {
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px;
+  }
+}
+
+#leaderboard h1 {
+  font-size: 1.8rem;
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+#leaderboard .player-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+#leaderboard .player-info strong {
+  color: #ffd700;
+  font-size: 2rem;
+}
+
+#leaderboard .points {
+  color: #7ecfff;
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.leadeboard__container {
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
+
+#conquistas-list li.platinum {
+  background: #ffd700;
+  border: 2px solid #ffea00;
+  box-shadow: 0 0 12px 4px #ffea00;
+  color: #000;
+}
+
+#conquistas-list li.platinum strong {
+  color: #000;
+}
+
+#conquistas-list li.platinum em {
+  font-style: italic;
+  font-weight: bold;
+}
+
+#leaderboard img.highlight {
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 12px 4px #ffd700;
+}
+
+#sidekick-menu {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  background: #23283a;
+  border-radius: 0 12px 12px 0;
+  padding: 16px;
+  box-shadow: 2px 4px 16px rgba(0, 0, 0, 0.18);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#sidekick-menu button {
+  background: #2e3650;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#sidekick-menu button:hover {
+  background: #3a4260;
+}
+
+#sidekick-menu button img {
+  width: 32px;
+  height: 32px;
+}
+
+@media (max-width: 600px) {
+  h1, h2 {
+    font-size: 1.3rem;
+    margin-top: 16px;
+  }
+  #sidekick-menu {
+    position: static;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 8px 0;
+    margin-bottom: 8px;
+  }
+  #sidekick-menu button {
+    padding: 8px;
+    margin: 0 4px;
+  }
+}
