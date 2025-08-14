@@ -2,6 +2,7 @@ let lastChievoCount = 0;
 let lastChievoIds = new Set();
 
 function renderChievos(conquistas) {
+  
   const ulConquistas = document.getElementById('conquistas-list');
   const leaderboard = document.querySelector('#leaderboard ul');
 
@@ -63,65 +64,33 @@ function renderChievos(conquistas) {
     // Container para posicionar o botão
     li.style.position = 'relative';
     li.classList.add('achievement');
-    deleteBtn.addEventListener('click', async () => {
-      const confirmDelete = confirm('Tem certeza que deseja excluir esta conquista?');
-      if (!confirmDelete) return;
-      try {
-        let res;
-        if (c.chievoDesc === "Platina obtida!") {
-          li.classList.add('platinum');
-          li.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 16px;">
-      <img src="${c.iconUrl}" alt="${c.title}" width="96" height="96" style="border-radius: 12px;">
-      <div>
-        <strong style="font-size: 1.3rem;">${c.title}</strong>
-        <div style="font-size: 1rem; color: #444;">${c.gameName} - ${c.gameConsole}</div>
-        <em>${c.chievoDesc}</em>
-        <div class="player" style="margin-top: 6px;">
-          Obtida em: ${data.toLocaleString('pt-BR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          })}<br>
-          Jogador: ${c.player}
-        </div>
-      </div>
-    </div>
-  `;
-        } else {
-          li.classList.add('achievement');
-          li.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 16px;">
-      <img src="${c.iconUrl}" alt="${c.title}" width="96" height="96" style="border-radius: 12px;">
-      <div>
-        <strong style="font-size: 1.3rem;">${c.title}</strong>
-        <div style="font-size: 1rem; color: #444;">${c.gameName} - ${c.gameConsole}</div>
-        <em>${c.chievoDesc} - ${c.chievoPoints} pontos</em>
-        <div class="player" style="margin-top: 6px;">
-          Obtida em: ${data.toLocaleString('pt-BR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          })}<br>
-          Jogador: ${c.player}
-        </div>
-      </div>
-    </div>
-  `;
-        }
-        if (res.ok) {
-          li.remove();
-        } else {
-          alert('Erro ao excluir conquista.');
-        }
-      } catch (err) {
-        alert('Erro ao excluir conquista.');
-      }
-    });
+deleteBtn.addEventListener('click', async () => {
+  const confirmDelete = confirm('Tem certeza que deseja excluir esta conquista?');
+  if (!confirmDelete) return;
+  try {
+    let res;
+    if (c.chievoDesc === "Platina obtida!") {
+      // Exclui platina
+      res = await fetch('http://localhost:1337/platinums', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player: c.player, title: c.title })
+      });
+    } else {
+      // Exclui conquista normal
+      res = await fetch(`http://localhost:1337/achievement/${c.achievementId}`, {
+        method: 'DELETE'
+      });
+    }
+    if (res.ok) {
+      li.remove();
+    } else {
+      alert('Erro ao excluir conquista.');
+    }
+  } catch (err) {
+    alert('Erro ao excluir conquista.');
+  }
+});
 
     if (c.chievoDesc === "Platina obtida!") {
       li.classList.add('platinum');
@@ -238,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
         alert('Erro ao apagar o cache dos jogadores.');
       }
     } catch (error) {
-      console.error('Erro na requisição para apagar o cache dos jogadores:', error);
+      console.error('Erro na requisição para apagar o cache dos jogadores:', err);
       alert('Erro ao apagar o cache dos jogadores.');
     }
   });
