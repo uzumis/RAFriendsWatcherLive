@@ -13,8 +13,9 @@ Este projeto é um sistema para monitorar conquistas de jogadores em grupo, exib
 
 ## Como usar
 1. Instale o Node.js (veja instruções no start.cmd)
-2. Execute o script `start.cmd` para iniciar o backend e o live-server
-3. Acesse o endereço informado no terminal
+2. Copie o arquivo .env-example e renomeie para .env e coloque seu usuario e chave de API
+3. Execute o script `start.cmd` para iniciar o backend e o live-server
+4. Acesse o endereço informado no terminal
 
 
 ## Principais páginas HTML
