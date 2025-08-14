@@ -211,7 +211,19 @@ router.delete('/:achievementId', async (req, res) => {
         res.status(500).send('Erro ao excluir conquista');
     }
 });
-
+router.post('/importChievo', async (req, res) => {
+    try {
+        const conquistas = req.body;
+        if (!Array.isArray(conquistas)) {
+            return res.status(400).send('O arquivo deve ser um array de conquistas.');
+        }
+        await fs.writeFile('./chievoData.json', JSON.stringify(conquistas, null, 2));
+        res.send('Conquistas importadas com sucesso!');
+    } catch (error) {
+        console.error('Erro ao importar conquistas:', error);
+        res.status(500).send('Erro ao importar conquistas.');
+    }
+});
 loadUserData();
 
 export default router;

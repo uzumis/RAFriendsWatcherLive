@@ -133,5 +133,17 @@ router.delete('/:index', async (req, res) => {
     }
 });
 
+router.post('/import', async (req, res) => {
+  try {
+    const players = req.body;
+    if (!Array.isArray(players)) {
+      return res.status(400).send('O arquivo deve ser um array de jogadores.');
+    }
+    await fsPromise.writeFile(playersFile, JSON.stringify(players, null, 2));
+    res.send('Jogadores importados com sucesso!');
+  } catch (error) {
+    res.status(500).send('Erro ao importar jogadores.');
+  }
+});
 
 export default router;
