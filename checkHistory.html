@@ -10,6 +10,11 @@
 </head>
 
 <body>
+<button id="export-chievo" title="Exportar conquistas">Exportar Conquistas</button>
+<button id="import-chievo" title="Importar conquistas">Importar Conquistas</button>
+<button id="export-players" title="Exportar jogadores">Exportar Jogadores</button>
+<button id="import-players" title="Importar jogadores">Importar Jogadores</button>
+<input type="file" id="file-input" style="display:none;">
   <div id="sidekick-menu">
     <!-- Botão para apagar o cache dos jogadores -->
     <button id="clear-cache">
@@ -44,13 +49,40 @@
     <button id="close-modal"
       style="width: 100%; padding: 10px; background: #3a4260; color: #fff; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">Fechar</button>
   </div>
-<h1>MOMENTO COMUNIDADE!</h1>
-<div id="main-content">
-  <ul id="conquistas-list"></ul>
-  <div id="leaderboard">
-    <ul></ul>
+  <h1>MOMENTO COMUNIDADE!</h1>
+  <!-- Modal de confirmação de cópia -->
+  <div id="copy-modal"
+    style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+background:#23283a; color:#ffd700; padding:24px 32px; border-radius:12px; box-shadow:0 4px 16px #0008; z-index:2000; font-size:1.3rem;">
+    URL copiada para OBS!
   </div>
-</div>
+  <div id="quick-links" style="display: flex; gap: 18px; justify-content: center; margin: 24px 0;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <a href="index.html" target="_blank"
+        style="background: #23283a; color: #ffd700; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: bold; box-shadow: 0 2px 8px #23283a55;">
+        Página Inicial
+      </a>
+      <button class="copy-link-btn" data-url="index.html" style="background: none; border: none; cursor: pointer;">
+        <img src="https://img.icons8.com/ios-filled/24/ffd700/copy.png" alt="Copiar URL" title="Copiar URL para OBS">
+      </button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <a href="widgetConquistas.html" target="_blank"
+        style="background: #23283a; color: #7ecfff; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: bold; box-shadow: 0 2px 8px #23283a55;">
+        Widget Conquistas
+      </a>
+      <button class="copy-link-btn" data-url="widgetConquistas.html"
+        style="background: none; border: none; cursor: pointer;">
+        <img src="https://img.icons8.com/ios-filled/24/7ecfff/copy.png" alt="Copiar URL" title="Copiar URL para OBS">
+      </button>
+    </div>
+  </div>
+  <div id="main-content">
+    <ul id="conquistas-list"></ul>
+    <div id="leaderboard">
+      <ul></ul>
+    </div>
+  </div>
   <div style="flex: 1; padding: 20px;">
     <ul id="conquistas-list"></ul>
   </div>
