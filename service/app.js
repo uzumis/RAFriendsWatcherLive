@@ -8,6 +8,8 @@ import adminRoutes from './adminService.js';
 const app = express();
 const PORT = 1337;
 
+app.use(express.static('.'));
+
 app.use(cors());
 app.use(express.json());
 

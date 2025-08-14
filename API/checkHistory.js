@@ -42,17 +42,93 @@ function renderChievos(conquistas) {
     leaderboard.appendChild(li);
   });
 
-  // Adicionar conquistas recentes
   conquistas.slice().reverse().forEach(c => {
-    const li = document.createElement('li');
-    const data = new Date(c.chievoTimestamp);
-    data.setHours(data.getHours() - 3);
+  const li = document.createElement('li');
+  const data = new Date(c.chievoTimestamp);
+  data.setHours(data.getHours() - 3);
+
+  // Botão de excluir
+  const deleteBtn = document.createElement('button');
+  deleteBtn.innerHTML = '✖';
+  deleteBtn.title = 'Excluir conquista';
+  deleteBtn.style.background = 'transparent';
+  deleteBtn.style.border = 'none';
+  deleteBtn.style.color = '#ff4d4d';
+  deleteBtn.style.fontSize = '1.5rem';
+  deleteBtn.style.cursor = 'pointer';
+  deleteBtn.style.position = 'absolute';
+  deleteBtn.style.top = '10px';
+  deleteBtn.style.right = '10px';
+
+  // Container para posicionar o botão
+  li.style.position = 'relative';
+  li.classList.add('achievement');
+  deleteBtn.addEventListener('click', async () => {
+    const confirmDelete = confirm('Tem certeza que deseja excluir esta conquista?');
+    if (!confirmDelete) return;
+    try {
+      let res;
+if (c.chievoDesc === "Platina obtida!") {
+  li.classList.add('platinum');
+  li.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <img src="${c.iconUrl}" alt="${c.title}" width="96" height="96" style="border-radius: 12px;">
+      <div>
+        <strong style="font-size: 1.3rem;">${c.title}</strong>
+        <div style="font-size: 1rem; color: #444;">${c.gameName} - ${c.gameConsole}</div>
+        <em>${c.chievoDesc}</em>
+        <div class="player" style="margin-top: 6px;">
+          Obtida em: ${data.toLocaleString('pt-BR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}<br>
+          Jogador: ${c.player}
+        </div>
+      </div>
+    </div>
+  `;
+} else {
+  li.classList.add('achievement');
+  li.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <img src="${c.iconUrl}" alt="${c.title}" width="96" height="96" style="border-radius: 12px;">
+      <div>
+        <strong style="font-size: 1.3rem;">${c.title}</strong>
+        <div style="font-size: 1rem; color: #444;">${c.gameName} - ${c.gameConsole}</div>
+        <em>${c.chievoDesc} - ${c.chievoPoints} pontos</em>
+        <div class="player" style="margin-top: 6px;">
+          Obtida em: ${data.toLocaleString('pt-BR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}<br>
+          Jogador: ${c.player}
+        </div>
+      </div>
+    </div>
+  `;
+}
+      if (res.ok) {
+        li.remove();
+      } else {
+        alert('Erro ao excluir conquista.');
+      }
+    } catch (err) {
+      alert('Erro ao excluir conquista.');
+    }
+  });
+
     if (c.chievoDesc === "Platina obtida!") {
       li.classList.add('platinum');
       li.innerHTML = `
         <span class="info">
           <img src="${c.iconUrl}" alt="${c.title}" width="128" height="128" style="vertical-align:middle;margin-right:8px;">
-          <strong>${c.title}</strong> (${c.gameName} - ${c.gameConsole})<br>
+          <strong>${c.title}</strong> <br> (${c.gameConsole})<br>
           <em>${c.chievoDesc}</em><br>
           <span class="player">
             Obtida em: ${data.toLocaleString('pt-BR', {
@@ -70,7 +146,7 @@ function renderChievos(conquistas) {
       li.innerHTML = `
         <span class="info">
           <img src="${c.iconUrl}" alt="${c.title}" width="128" height="128" style="vertical-align:middle;margin-right:8px;">
-          <strong>${c.title}</strong> (${c.gameName} - ${c.gameConsole})<br>
+          <strong>${c.title}</strong> <br> (${c.gameName} - ${c.gameConsole})<br>
           <em>${c.chievoDesc} - ${c.chievoPoints} pontos</em><br>
           <span class="player">
             Obtida em: ${data.toLocaleString('pt-BR', {
@@ -85,6 +161,7 @@ function renderChievos(conquistas) {
         </span>
       `;
     }
+    li.appendChild(deleteBtn);
     ulConquistas.appendChild(li);
   });
 }
@@ -186,14 +263,11 @@ document.addEventListener('DOMContentLoaded', function() {
       alert('Erro ao limpar o histórico de jogadores.');
     }
   });
-
-  document.getElementById('manage-players').addEventListener('click', async () => {
     const modal = document.getElementById('player-modal');
     const playerList = document.getElementById('player-list');
     const newPlayerInput = document.getElementById('new-player-name');
 
-    // Exibe o modal
-    modal.style.display = 'block';
+
 
     // Carrega a lista de jogadores
     async function loadPlayers() {
@@ -317,9 +391,11 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Fechar o modal
-
+document.getElementById('manage-players').addEventListener('click', () => {
+  modal.style.display = 'block';
+  loadPlayers();
+});
   document.getElementById('close-modal').addEventListener('click', () => {
     modal.style.display = 'none';
   });
-});
 });

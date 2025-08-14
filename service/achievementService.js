@@ -191,6 +191,27 @@ router.get('/exists/:achievementId', async (req, res) => {
     }
 });
 
+router.delete('/:achievementId', async (req, res) => {
+    const { achievementId } = req.params;
+    try {
+        const data = await fs.readFile('./chievoData.json', 'utf8');
+        let conquistas = JSON.parse(data);
+
+        const initialLength = conquistas.length;
+        conquistas = conquistas.filter(c => String(c.achievementId) !== String(achievementId));
+
+        if (conquistas.length === initialLength) {
+            return res.status(404).send('Conquista não encontrada.');
+        }
+
+        await fs.writeFile('./chievoData.json', JSON.stringify(conquistas, null, 2));
+        res.send('Conquista excluída com sucesso!');
+    } catch (err) {
+        console.error('Erro ao excluir conquista:', err);
+        res.status(500).send('Erro ao excluir conquista');
+    }
+});
+
 loadUserData();
 
 export default router;
