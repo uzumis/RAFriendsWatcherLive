@@ -145,16 +145,16 @@ async function fetchPlayers() {
 document.addEventListener('DOMContentLoaded', function() {
   // Apagar o cache dos jogadores
   document.getElementById('clear-cache').addEventListener('click', async () => {
+    const confirmPick = confirm(`Você tem certeza que deseja apagar o cache dos jogadores? Isso irá remover todos os dados armazenados em cache e forçar uma nova coleta de dados.`);
+    if (!confirmPick) return;
     try {
       const response = await fetch('http://localhost:1337/admin/clear-cache', {
         method: 'POST'
       });
 
       if (response.ok) {
-        const confirmPick = confirm(`Você tem certeza que deseja apagar o cache dos jogadores? Isso irá remover todos os dados armazenados em cache e forçar uma nova coleta de dados.`);
-        if (!confirmPick) return;
         alert('Cache dos jogadores apagado com sucesso!');
-        fetchPlayers()
+        fetchPlayers();
       } else {
         console.error('Erro ao apagar o cache dos jogadores:', response.statusText);
         alert('Erro ao apagar o cache dos jogadores.');
@@ -167,14 +167,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Limpar o histórico de jogadores
   document.getElementById('clear-history').addEventListener('click', async () => {
+    const confirmPick = confirm(`Você tem certeza que deseja limpar o histórico de conquistas e platinas? Isso irá remover todos os dados de conquistas e platinas dos jogadores e inclusive a tabela de conquistadores.`);
+    if (!confirmPick) return;
     try {
       const response = await fetch('http://localhost:1337/admin/clear-history', {
         method: 'POST'
       });
 
       if (response.ok) {
-        const confirmPick = confirm(`Você tem certeza que deseja limpar o histórico de conquistas e platinas? Isso irá remover todos os dados de conquistas e platinas dos jogadores e inclusive a tabela de conquistadores.`);
-        if (!confirmPick) return;
         alert('Histórico de conquistas e platinas apagado com sucesso!');
         window.location.reload();
       } else {
