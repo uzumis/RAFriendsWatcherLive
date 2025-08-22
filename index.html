@@ -11,6 +11,8 @@
 <body>
     <audio id="achievement-sound" src="../som/steam-achievement-popup.mp3"></audio>
     <audio id="chocolate-branco" src="../som/lulinha.mp3"></audio>
+    <audio id="special-achievement" src="../som/muitoraro.mp3"></audio>
+    <audio id="fifty" src="../som/50.mp3"></audio>
     <audio id="platinum-sound" src="../som/final_fantasy_KDr5Pxg.mp3"></audio>
 
     <div id="achievement-popup">
@@ -177,15 +179,26 @@
             icon.src = RA_URL + iconUrl;
             popup.style.display = 'flex';
 
+            const chocolateBranco = document.getElementById('chocolate-branco');
+            const specialAchievement = document.getElementById('special-achievement');
             const audio = document.getElementById('achievement-sound');
+            const fifty = document.getElementById('fifty');
 
-            if(player == 'lulinhaa') {
-                const chocolateBranco = document.getElementById('chocolate-branco');
-                chocolateBranco.currentTime = 0;
-                chocolateBranco.play();
-            }
-            if (audio) {
-                audio.currentTime = 0;
+            // Para garantir que nenhum som fique tocando junto:
+            [chocolateBranco, specialAchievement, audio].forEach(aud => {
+                if (aud) {
+                    aud.pause();
+                    aud.currentTime = 0;
+                }
+            });
+
+            if (player === 'lulinhaa') {
+                if (chocolateBranco) chocolateBranco.play();
+            } else if (Number(chievoPoints) == 25) {
+                if (specialAchievement) specialAchievement.play();
+            } else if (Number(chievoPoints) >= 50) {
+                if (fifty) fifty.play();
+            } else if (audio) {
                 audio.play();
             }
 

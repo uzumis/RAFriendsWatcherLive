@@ -270,3 +270,9 @@ h1, h2 {
   }
 }
 
+a, a:visited, a:active, a:hover, a:focus {
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+  box-shadow: none;
+}

@@ -34,11 +34,13 @@ function renderChievos(conquistas) {
   sortedPlayers.forEach(([player, data], index) => {
     const li = document.createElement('li');
     li.innerHTML = `
+    <a target="_blank" rel="noopener noreferrer" href="https://retroachievements.org/user/${player}" target="_blank">
       <div class="player-info">
         <img src="${data.userPhoto}" alt="${player}" class="${playersWithPlatinumToday.has(player) ? 'highlight' : ''}">
         <strong>${index + 1}. ${player}</strong>
       </div>
       <span class="points">${data.points} pontos</span>
+    </a>
     `;
     leaderboard.appendChild(li);
   });
@@ -113,6 +115,7 @@ deleteBtn.addEventListener('click', async () => {
       `;
     } else {
       li.innerHTML = `
+      <a href="https://retroachievements.org/achievement/${c.achievementId}" target="_blank" rel="noopener noreferrer">
         <span class="info">
           <img src="${c.iconUrl}" alt="${c.title}" width="128" height="128" style="vertical-align:middle;margin-right:8px;">
           <strong>${c.title}</strong> <br> (${c.gameName} - ${c.gameConsole})<br>
@@ -128,7 +131,9 @@ deleteBtn.addEventListener('click', async () => {
             Jogador: ${c.player}
           </span>
         </span>
+        </a>
       `;
+      
     }
     li.appendChild(deleteBtn);
     ulConquistas.appendChild(li);
