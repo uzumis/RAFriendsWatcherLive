@@ -43,13 +43,15 @@ set PATH=%PATH%;C:\Program Files\nodejs\
 :: Verifica se node_modules existe, se não existir, instala
 if not exist "node_modules" (
     echo node_modules nao encontrado. Instalando dependencias...
-    npm install
-    if %errorlevel% neq 0 (
-        echo Falha ao instalar dependencias. Verifique seu package.json e npm.
-        pause
-        exit /b 1
+    start /wait "" "%~dp0installnode.cmd"
+    if not exist "node_modules" (
+        echo Falha na instalacao das dependencias. Reabrindo o programa...
+        start "" "%~dpnx0"
+        exit /b
     )
+    echo Dependencias instaladas com sucesso!
 )
+
 
 :: Define o diretório e a página inicial
 set DIR=%cd%
