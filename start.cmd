@@ -62,14 +62,14 @@ if not exist "%DIR%\%PAGE%" (
     exit /b 1
 )
 
-:: Abre a página no navegador
-start "" "http://localhost:1337/%PAGE%"
-
-:: Inicia o backend Express em uma nova janela para nao fechar
-start cmd /k "node Service/app.js"
-
 echo ==========================================
 echo  Servidor iniciado. Acesse: http://localhost:1337/%PAGE%
 echo ==========================================
-echo PARA FECHAR O SERVIDOR, FECHAR A JANELA DO NODE
+echo PARA FECHAR O SERVIDOR, PRESSIONE CTRL+C
+echo ==========================================
+
+:: Inicia o backend Express e abre o navegador
+start "" "http://localhost:1337/%PAGE%"
+node Service/app.js
+
 pause
