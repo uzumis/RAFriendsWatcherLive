@@ -1,6 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
+echo ==========================================
+echo      RetroAchievementsGroupWatcher
+echo            Versão 1.0
+echo ==========================================
+
 :: Verifica e cria arquivos JSON necessários
 set JSONFILES=userData.json chievoData.json players.json
 for %%F in (%JSONFILES%) do (
@@ -27,7 +32,7 @@ if not exist ".env" (
 :: Verifica se o Node.js está instalado
 where node >nul 2>nul
 if %errorlevel% neq 0 (
-    echo NodeJS não encontrado. Instale manualmente em: https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi
+    echo NodeJS nao encontrado. Instale manualmente em: https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi
     pause
     exit /b 1
 )
@@ -35,24 +40,36 @@ if %errorlevel% neq 0 (
 :: Atualiza o PATH para reconhecer o Node.js recém-instalado
 set PATH=%PATH%;C:\Program Files\nodejs\
 
+:: Verifica se node_modules existe, se não existir, instala
+if not exist "node_modules" (
+    echo node_modules nao encontrado. Instalando dependencias...
+    npm install
+    if %errorlevel% neq 0 (
+        echo Falha ao instalar dependencias. Verifique seu package.json e npm.
+        pause
+        exit /b 1
+    )
+)
+
 :: Define o diretório e a página inicial
 set DIR=%cd%
 set PAGE=checkHistory.html
 
 :: Verifica se o arquivo existe
 if not exist "%DIR%\%PAGE%" (
-    echo Arquivo %PAGE% não encontrado no diretório %DIR%
+    echo Arquivo %PAGE% nao encontrado no diretorio %DIR%
     pause
     exit /b 1
 )
 
-:: Inicia o backend Express
-echo Iniciando backend Express...
-start "" "http://localhost:1337/checkHistory.html"
-node Service/app.js
+:: Abre a página no navegador
+start "" "http://localhost:1337/%PAGE%"
+
+:: Inicia o backend Express em uma nova janela para nao fechar
+start cmd /k "node Service/app.js"
 
 echo ==========================================
-echo  Acesse: http://localhost:1337/checkHistory.html
+echo  Servidor iniciado. Acesse: http://localhost:1337/%PAGE%
 echo ==========================================
-echo PARA FECHAR O SERVIDOR, USE CTRL+C
+echo PARA FECHAR O SERVIDOR, FECHAR A JANELA DO NODE
 pause
