@@ -193,11 +193,11 @@
             });
 
             if (player === 'lulinhaa') {
-                if (chocolateBranco) chocolateBranco.play();
+                if (chocolateBranco) audio.play();
             } else if (Number(chievoPoints) == 25) {
                 if (specialAchievement) specialAchievement.play();
             } else if (Number(chievoPoints) >= 50) {
-                if (fifty) fifty.play();
+                if (fifty) audio.play();
             } else if (audio) {
                 audio.play();
             }
