@@ -111,4 +111,41 @@ router.post('/savePlatinum', (req, res) => {
         });
     });
 });
+
+// Endpoint para excluir platina por jogador e título
+router.delete('/', (req, res) => {
+    const { player, title } = req.body;
+    if (!player || !title) {
+        return res.status(400).send('Informe player e title para exclusão.');
+    }
+
+    fs.readFile('./chievoData.json', 'utf8', (err, data) => {
+        let platinums = [];
+        if (!err && data) {
+            try {
+                platinums = JSON.parse(data);
+                if (!Array.isArray(platinums)) platinums = [];
+            } catch (e) {
+                platinums = [];
+            }
+        }
+
+        // Verifica se existe a platina
+        const jaExiste = platinums.some(c => c.player === player && c.title === title);
+        if (!jaExiste) {
+            return res.status(404).send('Platina não encontrada!');
+        }
+
+        // Remove a platina
+        const updated = platinums.filter(c => !(c.player === player && c.title === title));
+
+        fs.writeFile('./chievoData.json', JSON.stringify(updated, null, 2), (err) => {
+            if (err) {
+                return res.status(500).send('Erro ao excluir platina');
+            }
+            res.send('Platina excluída com sucesso!');
+        });
+    });
+});
+
 export default router;

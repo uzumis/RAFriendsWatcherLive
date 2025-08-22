@@ -191,6 +191,39 @@ router.get('/exists/:achievementId', async (req, res) => {
     }
 });
 
+router.delete('/:achievementId', async (req, res) => {
+    const { achievementId } = req.params;
+    try {
+        const data = await fs.readFile('./chievoData.json', 'utf8');
+        let conquistas = JSON.parse(data);
+
+        const initialLength = conquistas.length;
+        conquistas = conquistas.filter(c => String(c.achievementId) !== String(achievementId));
+
+        if (conquistas.length === initialLength) {
+            return res.status(404).send('Conquista não encontrada.');
+        }
+
+        await fs.writeFile('./chievoData.json', JSON.stringify(conquistas, null, 2));
+        res.send('Conquista excluída com sucesso!');
+    } catch (err) {
+        console.error('Erro ao excluir conquista:', err);
+        res.status(500).send('Erro ao excluir conquista');
+    }
+});
+router.post('/importChievo', async (req, res) => {
+    try {
+        const conquistas = req.body;
+        if (!Array.isArray(conquistas)) {
+            return res.status(400).send('O arquivo deve ser um array de conquistas.');
+        }
+        await fs.writeFile('./chievoData.json', JSON.stringify(conquistas, null, 2));
+        res.send('Conquistas importadas com sucesso!');
+    } catch (error) {
+        console.error('Erro ao importar conquistas:', error);
+        res.status(500).send('Erro ao importar conquistas.');
+    }
+});
 loadUserData();
 
 export default router;

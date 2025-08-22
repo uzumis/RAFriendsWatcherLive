@@ -2,6 +2,7 @@ let lastChievoCount = 0;
 let lastChievoIds = new Set();
 
 function renderChievos(conquistas) {
+  
   const ulConquistas = document.getElementById('conquistas-list');
   const leaderboard = document.querySelector('#leaderboard ul');
 
@@ -33,26 +34,72 @@ function renderChievos(conquistas) {
   sortedPlayers.forEach(([player, data], index) => {
     const li = document.createElement('li');
     li.innerHTML = `
+    <a target="_blank" rel="noopener noreferrer" href="https://retroachievements.org/user/${player}" target="_blank">
       <div class="player-info">
         <img src="${data.userPhoto}" alt="${player}" class="${playersWithPlatinumToday.has(player) ? 'highlight' : ''}">
         <strong>${index + 1}. ${player}</strong>
       </div>
       <span class="points">${data.points} pontos</span>
+    </a>
     `;
     leaderboard.appendChild(li);
   });
 
-  // Adicionar conquistas recentes
   conquistas.slice().reverse().forEach(c => {
     const li = document.createElement('li');
     const data = new Date(c.chievoTimestamp);
     data.setHours(data.getHours() - 3);
+
+    // Botão de excluir
+    const deleteBtn = document.createElement('button');
+    deleteBtn.innerHTML = '✖';
+    deleteBtn.title = 'Excluir conquista';
+    deleteBtn.style.background = 'transparent';
+    deleteBtn.style.border = 'none';
+    deleteBtn.style.color = '#ff4d4d';
+    deleteBtn.style.fontSize = '1.5rem';
+    deleteBtn.style.cursor = 'pointer';
+    deleteBtn.style.position = 'absolute';
+    deleteBtn.style.top = '10px';
+    deleteBtn.style.right = '10px';
+
+    // Container para posicionar o botão
+    li.style.position = 'relative';
+    li.classList.add('achievement');
+deleteBtn.addEventListener('click', async () => {
+  const confirmDelete = confirm('Tem certeza que deseja excluir esta conquista?');
+  if (!confirmDelete) return;
+  try {
+    let res;
+    if (c.chievoDesc === "Platina obtida!") {
+      // Exclui platina
+      res = await fetch('http://localhost:1337/platinums', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player: c.player, title: c.title })
+      });
+    } else {
+      // Exclui conquista normal
+      res = await fetch(`http://localhost:1337/achievement/${c.achievementId}`, {
+        method: 'DELETE'
+      });
+    }
+    if (res.ok) {
+      li.remove();
+    } else {
+      alert('Erro ao excluir conquista.');
+    }
+  } catch (err) {
+    alert('Erro ao excluir conquista.');
+  }
+});
+
     if (c.chievoDesc === "Platina obtida!") {
       li.classList.add('platinum');
       li.innerHTML = `
         <span class="info">
           <img src="${c.iconUrl}" alt="${c.title}" width="128" height="128" style="vertical-align:middle;margin-right:8px;">
-          <strong>${c.title}</strong> (${c.gameName} - ${c.gameConsole})<br>
+          <strong>${c.title}</strong> <br> (${c.gameConsole})<br>
           <em>${c.chievoDesc}</em><br>
           <span class="player">
             Obtida em: ${data.toLocaleString('pt-BR', {
@@ -68,9 +115,10 @@ function renderChievos(conquistas) {
       `;
     } else {
       li.innerHTML = `
+      <a href="https://retroachievements.org/achievement/${c.achievementId}" target="_blank" rel="noopener noreferrer">
         <span class="info">
           <img src="${c.iconUrl}" alt="${c.title}" width="128" height="128" style="vertical-align:middle;margin-right:8px;">
-          <strong>${c.title}</strong> (${c.gameName} - ${c.gameConsole})<br>
+          <strong>${c.title}</strong> <br> (${c.gameName} - ${c.gameConsole})<br>
           <em>${c.chievoDesc} - ${c.chievoPoints} pontos</em><br>
           <span class="player">
             Obtida em: ${data.toLocaleString('pt-BR', {
@@ -83,8 +131,11 @@ function renderChievos(conquistas) {
             Jogador: ${c.player}
           </span>
         </span>
+        </a>
       `;
+      
     }
+    li.appendChild(deleteBtn);
     ulConquistas.appendChild(li);
   });
 }
@@ -99,6 +150,7 @@ async function fetchAndUpdateChievos() {
     lastChievoIds = currentIds;
   }
 }
+
 
 // Inicializa a tela
 fetchAndUpdateChievos();
@@ -142,7 +194,7 @@ async function fetchPlayers() {
 }
 
 // Aguarda o DOM estar pronto antes de adicionar event listeners
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   // Apagar o cache dos jogadores
   document.getElementById('clear-cache').addEventListener('click', async () => {
     const confirmPick = confirm(`Você tem certeza que deseja apagar o cache dos jogadores? Isso irá remover todos os dados armazenados em cache e forçar uma nova coleta de dados.`);
@@ -160,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Erro ao apagar o cache dos jogadores.');
       }
     } catch (error) {
-      console.error('Erro na requisição para apagar o cache dos jogadores:', error);
+      console.error('Erro na requisição para apagar o cache dos jogadores:', err);
       alert('Erro ao apagar o cache dos jogadores.');
     }
   });
@@ -186,20 +238,17 @@ document.addEventListener('DOMContentLoaded', function() {
       alert('Erro ao limpar o histórico de jogadores.');
     }
   });
+  const modal = document.getElementById('player-modal');
+  const playerList = document.getElementById('player-list');
+  const newPlayerInput = document.getElementById('new-player-name');
 
-  document.getElementById('manage-players').addEventListener('click', async () => {
-    const modal = document.getElementById('player-modal');
-    const playerList = document.getElementById('player-list');
-    const newPlayerInput = document.getElementById('new-player-name');
 
-    // Exibe o modal
-    modal.style.display = 'block';
 
-    // Carrega a lista de jogadores
-    async function loadPlayers() {
-      try {
-        const response = await fetch('http://localhost:1337/players');
-        const players = await response.json();
+  // Carrega a lista de jogadores
+  async function loadPlayers() {
+    try {
+      const response = await fetch('http://localhost:1337/players');
+      const players = await response.json();
 
       playerList.innerHTML = '';
       players.forEach((player, index) => {
@@ -239,9 +288,9 @@ document.addEventListener('DOMContentLoaded', function() {
               body: JSON.stringify({ name: nameInput.value })
             });
             alert('Jogador atualizado com sucesso!');
-   await fetch('http://localhost:1337/admin/clear-cache', {
-      method: 'POST'
-    });
+            await fetch('http://localhost:1337/admin/clear-cache', {
+              method: 'POST'
+            });
             loadPlayers();
           } catch (error) {
             console.error('Erro ao atualizar jogador:', error);
@@ -264,10 +313,10 @@ document.addEventListener('DOMContentLoaded', function() {
               method: 'DELETE'
             });
             alert('Jogador excluído com sucesso!');
-                 await fetch('http://localhost:1337/admin/clear-cache', {
-      method: 'POST'
-    });
-            
+            await fetch('http://localhost:1337/admin/clear-cache', {
+              method: 'POST'
+            });
+
             loadPlayers();
             fetchPlayers();
           } catch (error) {
@@ -305,9 +354,9 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       alert('Jogador adicionado com sucesso!');
       newPlayerInput.value = '';
-           await fetch('http://localhost:1337/admin/clear-cache', {
-      method: 'POST'
-    });
+      await fetch('http://localhost:1337/admin/clear-cache', {
+        method: 'POST'
+      });
       loadPlayers(); // Recarrega a lista
       fetchPlayers();
     } catch (error) {
@@ -317,9 +366,101 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Fechar o modal
-
+  document.getElementById('manage-players').addEventListener('click', () => {
+    modal.style.display = 'block';
+    loadPlayers();
+  });
   document.getElementById('close-modal').addEventListener('click', () => {
     modal.style.display = 'none';
   });
+
+  document.querySelectorAll('.copy-link-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const url = window.location.origin + '/' + btn.getAttribute('data-url');
+      try {
+        await navigator.clipboard.writeText(url);
+        const modal = document.getElementById('copy-modal');
+        modal.style.display = 'block';
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 1500);
+      } catch (err) {
+        alert('Erro ao copiar o link.');
+      }
+    });
+  });
+  document.getElementById('export-chievo').addEventListener('click', async () => {
+    const res = await fetch('http://localhost:1337/achievement/chievoData.json');
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chievoData.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('export-players').addEventListener('click', async () => {
+    const res = await fetch('http://localhost:1337/players');
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'players.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('import-chievo').addEventListener('click', () => {
+    const input = document.getElementById('file-input');
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      try {
+        const obj = JSON.parse(text); // <-- Converte para objeto
+        await fetch('http://localhost:1337/achievement/importChievo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(obj) // <-- Envia como JSON
+        });
+        alert('Conquistas importadas com sucesso!');
+        fetchAndUpdateChievos();
+      } catch (err) {
+        alert('Erro ao importar conquistas.');
+      }
+    };
+    input.click();
+  });
+
+  document.getElementById('import-players').addEventListener('click', () => {
+    const input = document.getElementById('file-input');
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      try {
+        const obj = JSON.parse(text); // <-- Converte para objeto
+        await fetch('http://localhost:1337/players/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(obj) // <-- Envia como JSON
+        });
+        alert('Jogadores importados com sucesso!');
+        fetchPlayers();
+      } catch (err) {
+        alert('Erro ao importar jogadores.');
+      }
+    };
+    input.click();
+  });
 });
-});
+

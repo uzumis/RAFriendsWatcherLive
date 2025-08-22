@@ -4,142 +4,76 @@ body {
   font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
 }
 
-h1,
-h2 {
+h1, h2 {
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   margin-top: 32px;
   color: #ffd700;
   letter-spacing: 2px;
 }
 
-#conquistas-list {
-  max-width: 98vw;
+#main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   width: 100%;
-  margin: 24px auto;
-  padding: 0 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 900px) {
+  #main-content {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 32px;
+  }
+}
+
+#conquistas-list {
+  flex: 2;
+  max-width: 700px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
   list-style: none;
   box-sizing: border-box;
 }
 
 #conquistas-list li {
   border-radius: 18px;
-  margin-bottom: 24px;
-  padding: 18px 10px;
+  margin-bottom: 18px;
+  padding: 18px 14px;
   font-size: 1.1rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  border: 2px solid #fffbe7;
-  transition: background 0.3s, box-shadow 0.3s;
-  word-break: break-word;
-  box-sizing: border-box;
-}
-
-@media (min-width: 600px) {
-  #conquistas-list li {
-    flex-direction: row;
-    font-size: 1.3rem;
-    padding: 24px 18px;
-    gap: 28px;
-  }
-  #conquistas-list {
-    max-width: 700px;
-    padding: 0;
-  }
-}
-
-#leaderboard {
-  position: static;
-  margin: 0 auto 16px auto;
-  width: 100%;
-  max-width: 98vw;
-  border-radius: 18px;
-  padding: 12px 8px;
-  z-index: 1000;
-  box-sizing: border-box;
-}
-
-@media (min-width: 600px) {
-  #leaderboard {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    max-width: 350px;
-    padding: 24px;
-  }
-}
-
-#leaderboard li {
-  border-radius: 14px;
-  margin-bottom: 10px;
-  padding: 12px 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
   gap: 10px;
   border: 2px solid #fffbe7;
+  background: #23283a;
   transition: background 0.3s, box-shadow 0.3s;
   word-break: break-word;
   box-sizing: border-box;
+  position: relative;
 }
 
-@media (min-width: 600px) {
-  #leaderboard li {
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 18px;
-  }
-}
-
-#leaderboard h1 {
-  font-size: 1.8rem;
-  color: #ffd700;
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-#leaderboard .player-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-#leaderboard .player-info strong {
-  color: #ffd700;
-  font-size: 2rem;
-}
-
-#leaderboard .points {
-  color: #7ecfff;
-  font-weight: bold;
-  font-size: 2rem;
-}
-
-.leadeboard__container {
-  padding: 0;
-  list-style: none;
-  margin: 0;
+#conquistas-list li:hover {
+  background: #2e3650;
+  box-shadow: 0 2px 12px 2px #23283a55;
 }
 
 #conquistas-list li.platinum {
-  background: #ffd700;
+  background: linear-gradient(90deg, #ffd700 70%, #fffbe7 100%);
   border: 2px solid #ffea00;
   box-shadow: 0 0 12px 4px #ffea00;
-  color: #000;
+  color: #23283a;
 }
 
 #conquistas-list li.platinum strong {
-  color: #000;
+  color: #23283a;
 }
 
 #conquistas-list li.platinum em {
@@ -147,11 +81,109 @@ h2 {
   font-weight: bold;
 }
 
+#leaderboard {
+  flex: 1;
+  max-width: 260px; /* reduzido */
+  min-width: 180px;
+  height: 70vh;
+  overflow-y: auto;
+  background: #23283a;
+  border-radius: 18px;
+  padding: 18px 12px;
+  box-sizing: border-box;
+  margin: 0;
+  box-shadow: 0 2px 12px 2px #23283a55;
+  position: relative;
+}
+
+#leaderboard h1 {
+  font-size: 1.4rem;
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+#leaderboard ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#leaderboard li {
+    border-radius: 12px;
+    margin-bottom: 10px;
+    padding: 12px 8px;
+    display: flex;
+    gap: 14px;
+    border: 2px solid #fffbe7;
+    background: #20232e;
+    transition: background 0.3s, box-shadow 0.3s;
+    word-break: break-word;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#leaderboard li:hover {
+  background: #2e3650;
+  box-shadow: 0 2px 12px 2px #23283a55;
+}
+
+#leaderboard .player-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+#leaderboard .player-info strong {
+  color: #ffd700;
+  font-size: 1.2rem;
+}
+
+#leaderboard .points {
+  color: #7ecfff;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
 #leaderboard img.highlight {
   border: 2px solid #ffd700;
   box-shadow: 0 0 12px 4px #ffd700;
 }
 
+#leaderboard li img {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%; /* círculo */
+  object-fit: cover;
+  border: 2px solid #ffd700;
+  background: #fffbe7;
+}
+
+@media (max-width: 900px) {
+  #main-content {
+    flex-direction: column;
+    gap: 24px;
+    padding: 8px;
+  }
+  #leaderboard {
+    max-width: 100vw;
+    min-width: unset;
+    height: auto;
+    margin-bottom: 16px;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #23283a;
+}
+::-webkit-scrollbar-thumb {
+  background: #ffd700;
+  border-radius: 8px;
+}
 #sidekick-menu {
   position: fixed;
   top: 50%;
@@ -207,4 +239,40 @@ h2 {
     padding: 8px;
     margin: 0 4px;
   }
+}
+@media (min-width: 900px) {
+  #main-content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 32px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  #conquistas-list {
+    max-width: 700px;
+    flex: 2;
+  }
+  #leaderboard {
+    max-width: 350px;
+    flex: 1;
+    margin: 0;
+    padding: 24px;
+  }
+}
+
+.platinum,
+.achievement {
+  .info strong {
+    font-size: 24px;
+  }
+}
+
+a, a:visited, a:active, a:hover, a:focus {
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+  box-shadow: none;
 }
