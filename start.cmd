@@ -10,6 +10,20 @@ for %%F in (%JSONFILES%) do (
     )
 )
 
+:: Verifica se o arquivo .env existe
+if not exist ".env" (
+    echo ==========================================
+    echo Arquivo .env NAO encontrado!
+    echo Informe o usuario RetroAchievements:
+    set /p USERNAME=
+    echo Informe a chave da API RetroAchievements:
+    set /p APIKEY=
+    echo username=!USERNAME!> .env
+    echo webApiKey=!APIKEY!>> .env
+    echo ==========================================
+    echo Arquivo .env criado com sucesso!
+)
+
 :: Verifica se o Node.js está instalado
 where node >nul 2>nul
 if %errorlevel% neq 0 (
