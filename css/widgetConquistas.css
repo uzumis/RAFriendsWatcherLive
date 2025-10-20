@@ -8,8 +8,6 @@ body {
   min-height: 1px;
 }
 #widget-conquistas {
-  max-width: 220px;
-  min-width: 180px;
   width: 100%;
   min-height: 220px;
   max-height: 320px; /* Tamanho máximo do container */

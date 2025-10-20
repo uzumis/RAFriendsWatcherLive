@@ -6,10 +6,10 @@ const router = express.Router();
 import dotenv from 'dotenv';
 dotenv.config();
 
-const username = process.env.username;
+const username = process.env.ra_username;
 const webApiKey = process.env.webApiKey;
 const authorization = buildAuthorization({ username, webApiKey });
-
+console.log('Authorization built for user:', username);
 router.post('/', async (req, res) => {
     const { players } = req.body;
     if (!players || !Array.isArray(players)) {

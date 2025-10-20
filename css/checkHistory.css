@@ -15,14 +15,16 @@ h1, h2 {
   letter-spacing: 2px;
 }
 
+/* Compatível com 1080p: centralizado, largura máxima, espaçamento equilibrado */
 #main-content {
   display: flex;
   flex-direction: column;
   gap: 24px;
   width: 100%;
   max-width: 1200px;
+  min-width: 320px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 24px 32px;
   box-sizing: border-box;
 }
 
@@ -191,21 +193,26 @@ h1, h2 {
   transform: translateY(-50%);
   background: #23283a;
   border-radius: 0 12px 12px 0;
-  padding: 16px;
+  padding: 12px;
   box-shadow: 2px 4px 16px rgba(0, 0, 0, 0.18);
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  max-width: 350px;
 }
 
 #custom-sound-config {
   position: relative;
   left: 0;
-  margin-left: 80px;
-  margin-top: 16px;
+  margin-left: 40px;
+  margin-top: 8px;
   box-shadow: 0 2px 8px #23283a55;
   z-index: 10;
+  max-width: 320px;
+  min-width: 180px;
+  padding: 8px;
+  border-radius: 8px;
 }
 
 #sidekick-menu button {
@@ -265,7 +272,9 @@ h1, h2 {
     gap: 32px;
     width: 100%;
     max-width: 1200px;
+    min-width: 320px;
     margin: 0 auto;
+    padding: 32px 0;
   }
   #conquistas-list {
     max-width: 700px;
@@ -276,6 +285,16 @@ h1, h2 {
     flex: 1;
     margin: 0;
     padding: 24px;
+  }
+  #sidekick-menu {
+    max-width: 350px;
+    padding: 16px;
+    gap: 16px;
+  }
+  #custom-sound-config {
+    max-width: 320px;
+    margin-left: 40px;
+    padding: 12px;
   }
 }
 

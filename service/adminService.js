@@ -3,6 +3,8 @@ import fs from 'fs/promises';
 
 const router = express.Router();
 
+const username = process.env.ra_username;
+
 // Endpoint para apagar o cache dos jogadores
 router.post('/clear-cache', async (req, res) => {
   try {

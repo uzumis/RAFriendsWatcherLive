@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Teste API RetroAchievements</title>
+  <script>
+    async function fetchGameProgression() {
+      try {
+        const response = await fetch('/mainuser/achievements');
+        if (!response.ok) throw new Error('Erro na requisição: ' + response.status);
+        const achievements = await response.json();
+
+        document.getElementById('resultado').innerHTML = '';
+        if (achievements && typeof achievements === 'object') {
+          const achArray = Object.values(achievements);
+          const lista = document.createElement('ul');
+          lista.style.listStyle = 'none';
+          lista.style.padding = '0';
+          lista.style.margin = '20px 0';
+          lista.id = 'conquistaLista';
+          lista.style.height = '250px';
+          lista.style.maxHeight = '250px';
+          lista.style.overflowY = 'auto';
+          lista.style.background = '#181818';
+          lista.style.borderRadius = '8px';
+          lista.style.border = '1px solid #333';
+          for (let i = 0; i < achArray.length; i++) {
+            const achievement = achArray[i];
+            const item = document.createElement('li');
+            item.style.marginBottom = '8px';
+            const btn = document.createElement('button');
+            btn.textContent = achievement.title;
+            btn.style.background = '#333';
+            btn.style.color = '#0ff';
+            btn.style.border = '1px solid #0ff';
+            btn.style.borderRadius = '6px';
+            btn.style.padding = '6px 12px';
+            btn.style.cursor = 'pointer';
+            btn.onclick = function() {
+              renderCard(achievement);
+            };
+            item.appendChild(btn);
+            lista.appendChild(item);
+          }
+          document.getElementById('resultado').appendChild(lista);
+
+          // Função para renderizar card
+          function renderCard(achievement) {
+            let badgeName = achievement.badgeName;
+            if (!achievement.dateEarnedHardcore) {
+              badgeName += '_lock';
+            }
+            document.getElementById('cardConquista').innerHTML = `
+              <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
+                <img src='https://media.retroachievements.org/Badge/${badgeName}.png' alt='Badge' style='width:64px;height:64px;border-radius:8px;border:2px solid #444;background:#222;'>
+                <div style='flex:1;'>
+                  <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>Uzuma está querendo a conquista:</div>
+                  <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>${achievement.title}</div>
+                  <div style='color:#fff;margin:8px 0;'>${achievement.description}</div>
+                  <div style='color:#ff0;font-size:1em;'>${achievement.points} pontos</div>
+                </div>
+              </div>
+            `;
+          }
+
+          // Input de busca
+          const searchInput = document.createElement('input');
+          searchInput.type = 'text';
+          searchInput.placeholder = 'Buscar conquista...';
+          searchInput.style.margin = '10px 0';
+          searchInput.style.width = '100%';
+          searchInput.style.padding = '6px';
+          searchInput.style.borderRadius = '6px';
+          searchInput.style.border = '1px solid #0ff';
+          searchInput.style.background = '#222';
+          searchInput.style.color = '#0ff';
+          document.getElementById('resultado').appendChild(searchInput);
+
+          // Filtro da lista
+          searchInput.addEventListener('input', function() {
+            const termo = searchInput.value.toLowerCase(); 
+            for (const item of lista.children) {
+              const btn = item.querySelector('button');
+              const achievement = achArray.find(a => a.title === btn.textContent);
+              const titleMatch = btn.textContent.toLowerCase().includes(termo);
+              const descMatch = achievement && achievement.description && achievement.description.toLowerCase().includes(termo);
+              if (titleMatch || descMatch) {
+                item.style.display = '';
+              } else {
+                item.style.display = 'none';
+              }
+            }
+          });
+        } else {
+          const msg = document.createElement('div');
+          msg.textContent = 'Nenhuma conquista encontrada.';
+          document.getElementById('resultado').appendChild(msg);
+        }
+      } catch (error) {
+        document.getElementById('resultado').textContent = error;
+      }
+    }
+
+    // Chama a função automaticamente ao carregar a página
+    window.onload = function() {
+      fetchGameProgression();
+    };
+  </script>
+</head>
+<body>
+  <div id="resultado" style="height: 200px;background:#222;color:#0f0;padding:1em;width:400px;min-height:400px;max-height:600px;overflow-y:auto;border-radius:12px;"></div>
+  <div id="cardConquista" style="margin-top:20px;"></div>
+</body>
+</html>

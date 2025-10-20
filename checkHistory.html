@@ -37,6 +37,42 @@
 </head>
 
 <body>
+  <script>
+    // Auto-scroll suave para o leaderboard
+    function startLeaderboardAutoScroll() {
+      const leaderboard = document.getElementById('leaderboard');
+      if (!leaderboard) return;
+      const list = leaderboard.querySelector('ul');
+      if (!list) return;
+      let scrollStep = 1; // px por frame
+      let delay = 30; // ms entre frames
+      let pauseTime = 2000; // ms de pausa no topo/fim
+      let direction = 1; // 1 = descendo, -1 = subindo
+      let paused = false;
+
+      function scrollLoop() {
+        if (paused) return;
+        leaderboard.scrollTop += scrollStep * direction;
+        // Chegou no fim
+        if (leaderboard.scrollTop + leaderboard.clientHeight >= leaderboard.scrollHeight) {
+          direction = -1;
+          paused = true;
+          setTimeout(() => { paused = false; scrollLoop(); }, pauseTime);
+          return;
+        }
+        // Chegou no topo
+        if (leaderboard.scrollTop <= 0) {
+          direction = 1;
+          paused = true;
+          setTimeout(() => { paused = false; scrollLoop(); }, pauseTime);
+          return;
+        }
+        setTimeout(scrollLoop, delay);
+      }
+      setTimeout(scrollLoop, 2000);
+    }
+    document.addEventListener('DOMContentLoaded', startLeaderboardAutoScroll);
+  </script>
   <button id="export-chievo" title="Exportar conquistas">Exportar Conquistas</button>
   <button id="import-chievo" title="Importar conquistas">Importar Conquistas</button>
   <button id="export-players" title="Exportar jogadores">Exportar Jogadores</button>
@@ -44,13 +80,17 @@
   <input type="file" id="file-input" style="display:none;">
   <div id="sidekick-accordion">
     <button id="sidekick-toggle" style="background:#23283a;border:none;border-radius:0 12px 12px 0;padding:8px 12px;cursor:pointer;position:relative;z-index:1001;display:flex;align-items:center;justify-content:center;">
-      <span id="sidekick-arrow" style="font-size:1.5rem;color:#ffd700;transition:transform 0.3s;">▶</span>
+      <span id="sidekick-arrow" style="font-size:1.7rem;color:#ffd700;transition:transform 0.3s;display:flex;align-items:center;">
+        <svg id="sidekick-arrow-svg" width="24" height="24" viewBox="0 0 24 24" style="transition:transform 0.3s;">
+          <path d="M8 5v14l11-7z" fill="#ffd700"/>
+        </svg>
+      </span>
     </button>
     <div id="sidekick-menu" style="transition:max-width 0.4s, opacity 0.4s;max-width:500px;opacity:1;overflow:hidden;">
       <div id="custom-sound-config"
-        style="margin: 32px 0; background: #23283a; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px #0005; max-width: 500px;">
+  style="margin: 12px 0; background: #23283a; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px #0005; max-width: 350px; min-width: 180px;">
         <h3 style="color: #ffd700;">Personalizar Sons de Conquista</h3>
-        <div style="margin-bottom: 18px;">
+  <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 4px;">
           <label style="color:#ffd700;">Comum:</label><br>
           <input type="file" id="custom-sound-input-achievement" accept="audio/mp3">
           <span id="custom-sound-current-achievement" style="color:#aaa; font-size:0.95em; margin-left:8px;"></span>
@@ -60,7 +100,7 @@
           <span id="custom-sound-status-achievement" style="color:#7ecfff;margin-left:8px;"></span>
           <audio id="custom-sound-audio-achievement" style="display:none;"></audio>
         </div>
-        <div style="margin-bottom: 18px;">
+  <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 4px;">
           <label style="color:#7ecfff;">Raro (25 pontos):</label><br>
           <input type="file" id="custom-sound-input-specialAchievement" accept="audio/mp3">
           <span id="custom-sound-current-specialAchievement" style="color:#aaa; font-size:0.95em; margin-left:8px;"></span>
@@ -70,7 +110,7 @@
           <span id="custom-sound-status-specialAchievement" style="color:#7ecfff;margin-left:8px;"></span>
           <audio id="custom-sound-audio-specialAchievement" style="display:none;"></audio>
         </div>
-        <div style="margin-bottom: 18px;">
+  <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 4px;">
           <label style="color:#ff4d4d;">Super Raro (50 ou 100 pontos):</label><br>
           <input type="file" id="custom-sound-input-superAchievement" accept="audio/mp3">
           <span id="custom-sound-current-superAchievement" style="color:#aaa; font-size:0.95em; margin-left:8px;"></span>
@@ -80,7 +120,7 @@
           <span id="custom-sound-status-superAchievement" style="color:#ff4d4d;margin-left:8px;"></span>
           <audio id="custom-sound-audio-superAchievement" style="display:none;"></audio>
         </div>
-        <div style="margin-bottom: 18px;">
+  <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 4px;">
           <label style="color:#ffd700;">Platina:</label><br>
           <input type="file" id="custom-sound-input-platinum" accept="audio/mp3">
           <span id="custom-sound-current-platinum" style="color:#aaa; font-size:0.95em; margin-left:8px;"></span>
@@ -175,11 +215,13 @@ background:#23283a; color:#ffd700; padding:24px 32px; border-radius:12px; box-sh
       if (sidekickOpen) {
         sidekickMenu.style.maxWidth = '500px';
         sidekickMenu.style.opacity = '1';
-        sidekickArrow.style.transform = 'rotate(0deg)';
+        document.getElementById('sidekick-arrow-svg').style.transform = 'rotate(0deg)';
+        sidekickToggle.title = 'Recolher painel';
       } else {
         sidekickMenu.style.maxWidth = '0px';
         sidekickMenu.style.opacity = '0';
-        sidekickArrow.style.transform = 'rotate(-90deg)';
+        document.getElementById('sidekick-arrow-svg').style.transform = 'rotate(-180deg)';
+        sidekickToggle.title = 'Expandir painel';
       }
     });
     // Configuração de sons customizados

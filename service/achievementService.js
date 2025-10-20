@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 const router = express.Router();
-const username = process.env.username;
+const username = process.env.ra_username;
 const webApiKey = process.env.webApiKey;
 
 const authorization = buildAuthorization({ username, webApiKey });
