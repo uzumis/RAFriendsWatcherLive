@@ -5,7 +5,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "env": "^0.0.2",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "multer": "^2.0.2"
   },
   "type": "module",
   "name": "retroachievementsgroupwatcher",

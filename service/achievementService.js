@@ -41,6 +41,29 @@ async function getCachedAchievements(username) {
     return achievements;
 }
 
+// Função para processar jogadores em lotes para evitar Too Many Requests
+async function processPlayersInBatches(players, batchSize = 5, delay = 1000) {
+    const allResults = [];
+    for (let i = 0; i < players.length; i += batchSize) {
+        const batch = players.slice(i, i + batchSize);
+        const batchResults = await Promise.all(
+            batch.map(async (player) => {
+                try {
+                    return await getCachedAchievements(player.name);
+                } catch (err) {
+                    console.error(`Erro ao buscar conquistas para ${player.name}:`, err);
+                    return [];
+                }
+            })
+        );
+        allResults.push(...batchResults);
+        if (i + batchSize < players.length) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+    return allResults;
+}
+
 // Função para obter dados do jogo com cache
 async function getCachedGameData(gameId) {
     if (gameDataCache.has(gameId)) {
@@ -68,23 +91,53 @@ async function fetchWithRetry(fetchFunction, args, retries = 5, delay = 1000) {
 
 // Endpoint para obter conquistas
 router.get('/', async (req, res) => {
-    loadUserData();
+    await loadUserData();
     const username = req.query.username;
+    const all = req.query.all === 'true';
+
+    // Se for para buscar todos os jogadores
+    if (all) {
+        try {
+            const batchResults = await processPlayersInBatches(users, 5, 1500);
+            const response = batchResults.map((achievements, idx) => ({
+                player: users[idx]?.name,
+                achievements: achievements || []
+            }));
+            return res.json(response);
+        } catch (err) {
+            console.error('Erro ao processar todos os jogadores:', err);
+            return res.status(500).json({ error: 'Erro ao processar todos os jogadores', details: err.message });
+        }
+    }
+
+    // Busca apenas um jogador
     if (!username) return res.status(400).json({ error: 'username required' });
 
     try {
         const userProfile = users.find(user => user.name === username);
         if (!userProfile) {
-            console.error(`Perfil do usuário não encontrado para o username: ${username}`);
+            console.error(`[ACHIEVEMENT] Perfil do usuário não encontrado para o username: ${username}`);
             return res.status(404).json({ error: 'Perfil do usuário não encontrado' });
         }
 
-        const achievements = await getUserRecentAchievements(authorization, { username });
+        let achievements;
+        try {
+            achievements = await getUserRecentAchievements(authorization, { username });
+        } catch (apiErr) {
+            console.error(`[ACHIEVEMENT] Erro na API externa para ${username}:`, apiErr.message);
+            return res.status(502).json({ error: 'Erro na API externa', details: apiErr.message });
+        }
+
         if (!achievements || achievements.length === 0) return res.json([]);
 
         const results = await Promise.all(
             achievements.map(async (achievement) => {
-                const gameData = await getCachedGameData(achievement.gameId);
+                let gameData = {};
+                try {
+                    gameData = await getCachedGameData(achievement.gameId);
+                } catch (gameErr) {
+                    console.warn(`[ACHIEVEMENT] Erro ao buscar dados do jogo ${achievement.gameId}:`, gameErr.message);
+                }
                 return {
                     achievementId: achievement.AchievementID || achievement.achievementId,
                     title: achievement.Title || achievement.title,
@@ -93,8 +146,8 @@ router.get('/', async (req, res) => {
                     chievoTimestamp: achievement.date,
                     chievoPoints: achievement.points,
                     gameData: {
-                        gameTitle: gameData.gameTitle,
-                        consoleName: gameData.consoleName,
+                        gameTitle: gameData.gameTitle || '',
+                        consoleName: gameData.consoleName || '',
                     },
                     userId: userProfile.userId,
                     userPhoto: userProfile.userPic,
@@ -104,8 +157,8 @@ router.get('/', async (req, res) => {
 
         res.json(results);
     } catch (err) {
-        console.error('Erro ao processar conquistas:', err);
-        res.status(500).json({ error: 'Erro ao processar conquistas' });
+        console.error('[ACHIEVEMENT] Erro ao processar conquistas:', err.message);
+        res.status(500).json({ error: 'Erro ao processar conquistas', details: err.message });
     }
 });
 

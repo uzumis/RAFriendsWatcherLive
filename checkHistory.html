@@ -7,32 +7,107 @@
   <title>Achievement History</title>
   <link rel="stylesheet" href="./css/checkHistory.css">
   <script src="./API/checkHistory.js"></script>
+  <script>
+    // Função para upload de áudio
+    async function uploadAudioFile(file) {
+      const formData = new FormData();
+      formData.append('audio', file);
+      const res = await fetch('/uploadaudio', {
+        method: 'POST',
+        body: formData
+      });
+      if (!res.ok) throw new Error('Falha no upload do áudio');
+      return (await res.json()).fileName;
+    }
+  </script>
+  <script>
+    // Funções utilitárias para acessar a API de custom audio
+    async function fetchCustomAudio() {
+      const res = await fetch('/customaudio');
+      return await res.json();
+    }
+    async function saveCustomAudio(data) {
+      await fetch('/customaudio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    }
+  </script>
 </head>
 
 <body>
-<button id="export-chievo" title="Exportar conquistas">Exportar Conquistas</button>
-<button id="import-chievo" title="Importar conquistas">Importar Conquistas</button>
-<button id="export-players" title="Exportar jogadores">Exportar Jogadores</button>
-<button id="import-players" title="Importar jogadores">Importar Jogadores</button>
-<input type="file" id="file-input" style="display:none;">
-  <div id="sidekick-menu">
-    <!-- Botão para apagar o cache dos jogadores -->
-    <button id="clear-cache">
-      <img src="https://img.icons8.com/ios-filled/50/ffffff/delete-database.png" alt="Apagar Cache"
-        title="Apagar Cache dos Jogadores">
+  <button id="export-chievo" title="Exportar conquistas">Exportar Conquistas</button>
+  <button id="import-chievo" title="Importar conquistas">Importar Conquistas</button>
+  <button id="export-players" title="Exportar jogadores">Exportar Jogadores</button>
+  <button id="import-players" title="Importar jogadores">Importar Jogadores</button>
+  <input type="file" id="file-input" style="display:none;">
+  <div id="sidekick-accordion">
+    <button id="sidekick-toggle" style="background:#23283a;border:none;border-radius:0 12px 12px 0;padding:8px 12px;cursor:pointer;position:relative;z-index:1001;display:flex;align-items:center;justify-content:center;">
+      <span id="sidekick-arrow" style="font-size:1.5rem;color:#ffd700;transition:transform 0.3s;">▶</span>
     </button>
-
-    <!-- Botão para limpar o histórico de jogadores -->
-    <button id="clear-history">
-      <img src="https://img.icons8.com/ios-filled/50/ffffff/erase.png" alt="Limpar Histórico"
-        title="Limpar Histórico de Conquistas">
-    </button>
-
-    <!-- Botão para gerenciar jogadores -->
-    <button id="manage-players">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Cog-scripted-svg-white.svg"
-        alt="Gerenciar Jogadores" title="Gerenciar Jogadores">
-    </button>
+    <div id="sidekick-menu" style="transition:max-width 0.4s, opacity 0.4s;max-width:500px;opacity:1;overflow:hidden;">
+      <div id="custom-sound-config"
+        style="margin: 32px 0; background: #23283a; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px #0005; max-width: 500px;">
+        <h3 style="color: #ffd700;">Personalizar Sons de Conquista</h3>
+        <div style="margin-bottom: 18px;">
+          <label style="color:#ffd700;">Comum:</label><br>
+          <input type="file" id="custom-sound-input-achievement" accept="audio/mp3">
+          <span id="custom-sound-current-achievement" style="color:#aaa; font-size:0.95em; margin-left:8px;"></span>
+          <input type="range" id="custom-sound-volume-achievement" min="0" max="1" step="0.01" value="1" style="width:120px;">
+          <button id="custom-sound-play-achievement"
+            style="background:#ffd700;color:#23283a;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;">Testar</button>
+          <span id="custom-sound-status-achievement" style="color:#7ecfff;margin-left:8px;"></span>
+          <audio id="custom-sound-audio-achievement" style="display:none;"></audio>
+        </div>
+        <div style="margin-bottom: 18px;">
+          <label style="color:#7ecfff;">Raro (25 pontos):</label><br>
+          <input type="file" id="custom-sound-input-specialAchievement" accept="audio/mp3">
+          <span id="custom-sound-current-specialAchievement" style="color:#aaa; font-size:0.95em; margin-left:8px;"></span>
+          <input type="range" id="custom-sound-volume-specialAchievement" min="0" max="1" step="0.01" value="1" style="width:120px;">
+          <button id="custom-sound-play-specialAchievement"
+            style="background:#7ecfff;color:#23283a;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;">Testar</button>
+          <span id="custom-sound-status-specialAchievement" style="color:#7ecfff;margin-left:8px;"></span>
+          <audio id="custom-sound-audio-specialAchievement" style="display:none;"></audio>
+        </div>
+        <div style="margin-bottom: 18px;">
+          <label style="color:#ff4d4d;">Super Raro (50 ou 100 pontos):</label><br>
+          <input type="file" id="custom-sound-input-superAchievement" accept="audio/mp3">
+          <span id="custom-sound-current-superAchievement" style="color:#aaa; font-size:0.95em; margin-left:8px;"></span>
+          <input type="range" id="custom-sound-volume-superAchievement" min="0" max="1" step="0.01" value="1" style="width:120px;">
+          <button id="custom-sound-play-superAchievement"
+            style="background:#ff4d4d;color:#23283a;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;">Testar</button>
+          <span id="custom-sound-status-superAchievement" style="color:#ff4d4d;margin-left:8px;"></span>
+          <audio id="custom-sound-audio-superAchievement" style="display:none;"></audio>
+        </div>
+        <div style="margin-bottom: 18px;">
+          <label style="color:#ffd700;">Platina:</label><br>
+          <input type="file" id="custom-sound-input-platinum" accept="audio/mp3">
+          <span id="custom-sound-current-platinum" style="color:#aaa; font-size:0.95em; margin-left:8px;"></span>
+          <input type="range" id="custom-sound-volume-platinum" min="0" max="1" step="0.01" value="1"
+            style="width:120px;">
+          <button id="custom-sound-play-platinum"
+            style="background:#ffd700;color:#23283a;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;">Testar</button>
+          <span id="custom-sound-status-platinum" style="color:#ffd700;margin-left:8px;"></span>
+          <audio id="custom-sound-audio-platinum" style="display:none;"></audio>
+        </div>
+      </div>
+      <!-- Botão para apagar o cache dos jogadores -->
+      <button id="clear-cache">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/delete-database.png" alt="Apagar Cache"
+          title="Apagar Cache dos Jogadores">
+      </button>
+      <!-- Botão para limpar o histórico de jogadores -->
+      <button id="clear-history">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/erase.png" alt="Limpar Histórico"
+          title="Limpar Histórico de Conquistas">
+      </button>
+      <!-- Botão para gerenciar jogadores -->
+      <button id="manage-players">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Cog-scripted-svg-white.svg"
+          alt="Gerenciar Jogadores" title="Gerenciar Jogadores">
+      </button>
+    </div>
   </div>
 
   <!-- Modal para gerenciar jogadores -->
@@ -86,6 +161,106 @@ background:#23283a; color:#ffd700; padding:24px 32px; border-radius:12px; box-sh
   <div style="flex: 1; padding: 20px;">
     <ul id="conquistas-list"></ul>
   </div>
+  <!-- Configuração de sons customizados -->
+
+
+  <script>
+    // Accordion do sidekick
+    const sidekickToggle = document.getElementById('sidekick-toggle');
+    const sidekickMenu = document.getElementById('sidekick-menu');
+    const sidekickArrow = document.getElementById('sidekick-arrow');
+    let sidekickOpen = true;
+    sidekickToggle.addEventListener('click', function() {
+      sidekickOpen = !sidekickOpen;
+      if (sidekickOpen) {
+        sidekickMenu.style.maxWidth = '500px';
+        sidekickMenu.style.opacity = '1';
+        sidekickArrow.style.transform = 'rotate(0deg)';
+      } else {
+        sidekickMenu.style.maxWidth = '0px';
+        sidekickMenu.style.opacity = '0';
+        sidekickArrow.style.transform = 'rotate(-90deg)';
+      }
+    });
+    // Configuração de sons customizados
+    // Sincroniza painel com API customaudio
+    async function setupCustomSound(type, color, customAudio) {
+      const input = document.getElementById(`custom-sound-input-${type}`);
+      const audio = document.getElementById(`custom-sound-audio-${type}`);
+      const playBtn = document.getElementById(`custom-sound-play-${type}`);
+      const volume = document.getElementById(`custom-sound-volume-${type}`);
+      const status = document.getElementById(`custom-sound-status-${type}`);
+
+      // Preenche valor salvo
+      const currentFileSpan = document.getElementById(`custom-sound-current-${type}`);
+      if (customAudio && customAudio[type]) {
+        audio.src = './som/' + customAudio[type];
+        status.textContent = 'Som carregado!';
+        status.style.color = color;
+        if (currentFileSpan) currentFileSpan.textContent = `Arquivo atual: ${customAudio[type]}`;
+      } else {
+        if (currentFileSpan) currentFileSpan.textContent = '';
+      }
+
+      input.addEventListener('change', async function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('audio/')) {
+          status.textContent = 'Selecione um arquivo de áudio válido.';
+          status.style.color = '#ff4d4d';
+          return;
+        }
+        try {
+          status.textContent = 'Enviando...';
+          status.style.color = color;
+          // Faz upload para o backend
+          const fileName = await uploadAudioFile(file);
+          audio.src = './som/' + fileName;
+          audio.load();
+          status.textContent = 'Som carregado!';
+          status.style.color = color;
+          // Salva no backend
+          const all = await fetchCustomAudio();
+          all[type] = fileName;
+          await saveCustomAudio(all);
+          if (currentFileSpan) currentFileSpan.textContent = `Arquivo atual: ${fileName}`;
+        } catch (err) {
+          status.textContent = 'Erro ao enviar o áudio!';
+          status.style.color = '#ff4d4d';
+        }
+      });
+
+      volume.addEventListener('input', function () {
+        audio.volume = parseFloat(volume.value);
+      });
+
+      playBtn.addEventListener('click', function () {
+        if (!audio.src) {
+          status.textContent = 'Nenhum som carregado.';
+          status.style.color = '#ff4d4d';
+          return;
+        }
+        audio.currentTime = 0;
+        audio.volume = parseFloat(volume.value);
+        audio.play();
+        status.textContent = 'Tocando...';
+        status.style.color = color;
+        audio.onended = () => {
+          status.textContent = 'Som carregado!';
+          status.style.color = color;
+        };
+      });
+    }
+
+    // Inicializa todos os tipos após buscar o JSON
+    (async function initCustomSoundsPanel() {
+      const customAudio = await fetchCustomAudio();
+      setupCustomSound('achievement', '#ffd700', customAudio);
+      setupCustomSound('specialAchievement', '#7ecfff', customAudio);
+      setupCustomSound('superAchievement', '#ff4d4d', customAudio);
+      setupCustomSound('platinum', '#ffd700', customAudio);
+    })();
+  </script>
 </body>
 
 </html>

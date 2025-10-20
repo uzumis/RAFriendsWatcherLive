@@ -18,7 +18,6 @@ body {
   padding: 0 2px;
   list-style: none;
   box-sizing: border-box;
-  overflow-y: auto;
   font-size: clamp(0.85rem, 2vw, 1rem); /* Fonte responsiva */
 }
 #widget-conquistas li {
@@ -56,22 +55,28 @@ body {
   font-weight: bold;
 }
 #widget-conquistas small {
-  font-size: clamp(8px, 0.9em, 11px);
+  font-size: clamp(5px, 0.9em, 11px);
   color: #fafafa;
   font-weight: bold;
 }
 #widget-conquistas li.platinum strong {
-  color: #000;
+  color: red;
 }
 #widget-conquistas li.platinum {
   background: #ffd700;
   border: 1px solid #ffea00;
   box-shadow: 0 0 6px 2px #ffea00;
   color: #000;
+  small{
+    color :#000;
+  }
+  stront{
+    font-size: 15px;
+  }
 }
 #widget-conquistas img {
-  width: 18px;
-  height: 18px;
+  width: 64px;
+  height: 64px;
   border-radius: 4px;
   margin-right: 4px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.12);
@@ -83,4 +88,16 @@ body {
   color: #ffd700;
   margin: 4px 0 6px 0;
   letter-spacing: 1px;
+}
+.container-platinum {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.container-achievement {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
 }
