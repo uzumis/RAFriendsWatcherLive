@@ -25,20 +25,40 @@ let meme = [
   "essa conquista está mais difícil que final de Dark Souls"
 ];
 
+// Elementos globais
+const resultadoDiv = document.getElementById('resultado');
+let searchInput = document.getElementById('doingChievoSearchInput');
+if (!searchInput) {
+  searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.id = 'doingChievoSearchInput';
+  searchInput.placeholder = 'Buscar conquista...';
+  searchInput.style.margin = '10px 0';
+  searchInput.style.width = '100%';
+  searchInput.style.padding = '6px';
+  searchInput.style.borderRadius = '6px';
+  searchInput.style.border = '1px solid #0ff';
+  searchInput.style.background = '#222';
+  searchInput.style.color = '#0ff';
+  resultadoDiv.appendChild(searchInput);
+}
+let achArrayGlobal = [];
+
 function renderProgression(achievements, username) {
-  document.getElementById('resultado').innerHTML = '';
+  resultadoDiv.innerHTML = '';
+  resultadoDiv.appendChild(searchInput);
   if (achievements && typeof achievements === 'object') {
     // Corrige o nome do usuário para primeira letra maiúscula
     const formatUsername = u => u ? u.charAt(0).toUpperCase() + u.slice(1) : '';
-    const achArray = Object.values(achievements).filter(a => !a.dateEarnedHardcore);
+    achArrayGlobal = Object.values(achievements).filter(a => !a.dateEarnedHardcore);
     const usernameFormatted = formatUsername(username);
-    if (achArray.length === 0) {
+    if (achArrayGlobal.length === 0) {
       const msg = document.createElement('div');
       msg.textContent = 'conseguiu todas as conquistas';
       msg.style.color = '#ff0';
       msg.style.fontSize = '1.1em';
       msg.style.margin = '24px 0';
-      document.getElementById('resultado').appendChild(msg);
+      resultadoDiv.appendChild(msg);
       // Card especial de todas as conquistas
       document.getElementById('cardConquista').innerHTML = `
         <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
@@ -63,8 +83,8 @@ function renderProgression(achievements, username) {
       lista.style.background = '#181818';
       lista.style.borderRadius = '8px';
       lista.style.border = '1px solid #333';
-      for (let i = 0; i < achArray.length; i++) {
-        const achievement = achArray[i];
+      for (let i = 0; i < achArrayGlobal.length; i++) {
+        const achievement = achArrayGlobal[i];
         const item = document.createElement('li');
         item.style.marginBottom = '12px';
         item.style.display = 'flex';
@@ -119,7 +139,7 @@ function renderProgression(achievements, username) {
         item.appendChild(contentDiv);
         lista.appendChild(item);
       }
-      document.getElementById('resultado').appendChild(lista);
+      resultadoDiv.appendChild(lista);
       // Seleciona a primeira conquista ao carregar
       if (lista.children.length > 0) {
         const btn = lista.children[0].querySelector('button');
@@ -145,41 +165,30 @@ function renderProgression(achievements, username) {
         </div>
       `;
     }
-
-    // Input de busca
-    const searchInput = document.createElement('input');
-    searchInput.type = 'text';
-    searchInput.placeholder = 'Buscar conquista...';
-    searchInput.style.margin = '10px 0';
-    searchInput.style.width = '100%';
-    searchInput.style.padding = '6px';
-    searchInput.style.borderRadius = '6px';
-    searchInput.style.border = '1px solid #0ff';
-    searchInput.style.background = '#222';
-    searchInput.style.color = '#0ff';
-    document.getElementById('resultado').appendChild(searchInput);
-
-    // Filtro da lista
-    searchInput.addEventListener('input', function() {
-      const termo = searchInput.value.toLowerCase(); 
-      for (const item of lista.children) {
-        const btn = item.querySelector('button');
-        const achievement = achArray.find(a => a.title === btn.textContent);
-        const titleMatch = btn.textContent.toLowerCase().includes(termo);
-        const descMatch = achievement && achievement.description && achievement.description.toLowerCase().includes(termo);
-        if (titleMatch || descMatch) {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
-        }
-      }
-    });
   } else {
     const msg = document.createElement('div');
     msg.textContent = 'Nenhuma conquista encontrada.';
-    document.getElementById('resultado').appendChild(msg);
+    resultadoDiv.appendChild(msg);
   }
 }
+
+// Filtro da lista (listener único)
+searchInput.addEventListener('input', function() {
+  const termo = searchInput.value.toLowerCase();
+  const lista = document.getElementById('conquistaLista');
+  if (!lista) return;
+  for (const item of lista.children) {
+    const btn = item.querySelector('button');
+    const achievement = achArrayGlobal.find(a => a.title === btn.textContent);
+    const titleMatch = btn.textContent.toLowerCase().includes(termo);
+    const descMatch = achievement && achievement.description && achievement.description.toLowerCase().includes(termo);
+    if (titleMatch || descMatch) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  }
+});
 
 
 let lastData = null;
