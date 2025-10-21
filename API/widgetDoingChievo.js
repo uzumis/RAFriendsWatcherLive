@@ -82,7 +82,8 @@ function renderProgression(achievements, username, selectedTitle) {
   if (achievements && typeof achievements === 'object') {
     // Corrige o nome do usuário para primeira letra maiúscula
     const formatUsername = u => u ? u.charAt(0).toUpperCase() + u.slice(1) : '';
-    achArrayGlobal = Object.values(achievements);
+    achArrayGlobal = Object.values(achievements)
+      .filter(a => !a.dateEarnedHardcore && !a.DateEarned);
     let filteredArray = achArrayGlobal;
     if (showMissableOnly) {
       filteredArray = achArrayGlobal.filter(a => a.type === 'missable');
