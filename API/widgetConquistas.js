@@ -9,15 +9,22 @@ function renderWidget(conquistas) {
     if (c.chievoDesc === "Platina obtida!") {
       li.classList.add('platinum');
       li.innerHTML = `
+       
         <img src="${c.iconUrl}" alt="${c.title}">
-        <span><strong>${c.title}</strong><br>
-        <small>${c.player}</small></span>
+        <span class= "container-platinum">
+        <small>${c.player}</small>
+        <strong>${c.title}</strong><br>
+        </span>
       `;
     } else {
       li.innerHTML = `
+        
         <img src="${c.iconUrl}" alt="${c.title}">
+        <span class= "container-achievement">
+        <small>${c.player}</small>
         <span><strong>${c.title}</strong><br>
-        <small>${c.gameName} - ${c.player} (${c.chievoPoints} pts)</small></span>
+        <small>${c.gameName} - (${c.chievoPoints} pts)</small>
+        </span>
       `;
     }
     ul.appendChild(li);

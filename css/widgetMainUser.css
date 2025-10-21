@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
+
+.main-user-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.main-user-widget {
+  background: #181818;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px #000;
+  padding: 24px 32px;
+  color: #0ff;
+  font-family: 'Inter', Arial, sans-serif;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.main-user-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #ff0;
+  margin-bottom: 8px;
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 700;
+}
+
+.main-user-game {
+  font-size: 1.1em;
+  color: #fff;
+}
+
+.main-user-completion {
+  font-size: 1em;
+  color: #0ff;
+  background-color: black;
+  border-radius: 8px;
+}
+
+.main-user-completion span {
+  font-family: 'Inter', Arial, sans-serif;
+  border: 1px solid white;
+  color: white;
+  border-radius: 4px;
+  padding: 0px 4px 1px 1px;
+  font-style: bold;
+  font-weight: 700;
+}
+
+.main-user-achievements {
+  font-size: 1em;
+  color: #fff;
+}
+
+.main-user-achievements span {
+  border: 1px solid white;
+  color: white;
+  border-radius: 4px;
+  padding: 0px 4px;
+  font-style: bold;
+  font-weight: 700;
+  background: white;
+  font-family: 'Inter', sans-serif;
+  color: black;
+}
+
+.main-user-error {
+  color: #f00;
+  font-weight: bold;
+  background: #222;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.main-user-stats {
+  display: flex;
+  gap: 5px;
+  flex-direction: row-reverse;
+}

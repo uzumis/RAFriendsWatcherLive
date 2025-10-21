@@ -9,11 +9,31 @@
 <link rel="stylesheet" href="./css/index.css">
 
 <body>
-    <audio id="achievement-sound" src="../som/steam-achievement-popup.mp3"></audio>
-    <audio id="chocolate-branco" src="../som/lulinha.mp3"></audio>
-    <audio id="special-achievement" src="../som/muitoraro.mp3"></audio>
-    <audio id="fifty" src="../som/50.mp3"></audio>
-    <audio id="platinum-sound" src="../som/final_fantasy_KDr5Pxg.mp3"></audio>
+    <script>
+        // Função para buscar os áudios customizados do backend
+        async function getCustomAudioPaths() {
+            try {
+                const res = await fetch('/customaudio');
+                if (!res.ok) throw new Error('Erro ao buscar customaudio');
+                return await res.json();
+            } catch (e) {
+                return {};
+            }
+        }
+        // Caminhos padrão
+        const DEFAULT_SOUNDS = {
+            achievement: './som/steam-achievement-popup.mp3',
+            chocolateBranco: './som/lulinha.mp3',
+            specialAchievement: './som/muitoraro.mp3',
+            superAchievement: './som/50.mp3',
+            platinum: './som/final_fantasy_KDr5Pxg.mp3'
+        };
+    </script>
+    <audio id="achievement-sound" src=""></audio>
+    <audio id="chocolate-branco" src=""></audio>
+    <audio id="special-achievement" src=""></audio>
+    <audio id="fifty" src=""></audio>
+    <audio id="platinum-sound" src=""></audio>
 
     <div id="achievement-popup">
         <div id="chievo-wrapper" style="display: flex; flex-direction: column; gap: 16px;">
@@ -44,354 +64,31 @@
         </div>
     </div>
 
-
-    <script type="module">
-        import { watchAllPlayers } from '../API/frontJs.js';
-        
-
-        console.log('Script loaded successfully');
-        async function fetchWithRetry(url, options = {}, retries = 5, delay = 1000) {
-            try {
-                const res = await fetch(url, options);
-                if (res.status === 429 && retries > 0) {
-                    console.warn(`Too Many Requests. Retrying in ${delay}ms...`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    return fetchWithRetry(url, options, retries - 1, delay);
+    <script>
+        // Aplica os caminhos aos elementos de áudio assim que o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', async function() {
+            const custom = await getCustomAudioPaths();
+            function resolveAudioPath(val, def, tipo) {
+                if (!val || typeof val !== 'string' || val.trim() === '') {
+                    console.log(`[AUDIO] Usando padrão para ${tipo}:`, def);
+                    return def;
                 }
-                return res;
-            } catch (err) {
-                console.error(`Fetch failed: ${err.message}`);
-                throw err;
-            }
-        }
-
-        async function fetchPlayers() {
-            try {
-                const res = await fetch('http://localhost:1337/players');
-                const players = await res.json();
-
-                for (const player of players) {
-                    console.log(`Player: ${player.name}`);
-                    try {
-                        const res = await fetchWithRetry(`http://localhost:1337/players/${player.name}`, {}, 5, 1000);
-                        const data = await res.json();
-                        console.log(`Data for ${player.name}:`, data.name || data);
-                    } catch (err) {
-                        console.error(`Error fetching data for ${player.name}:`, err);
-                    }
+                // Se for só o nome do arquivo, monta o caminho
+                if (!val.startsWith('./') && !val.startsWith('/')) {
+                    console.log(`[AUDIO] Usando customizado para ${tipo}: ./som/${val}`);
+                    return './som/' + val;
                 }
-                return players;
-
-            } catch (err) {
-                console.error('Error fetching players:', err);
+                console.log(`[AUDIO] Usando customizado para ${tipo}:`, val);
+                return val;
             }
-        }
-
-        async function fetchPlayersWithRetry(retries = 5, delay = 1000) {
-            let players = [];
-            while (retries > 0) {
-                try {
-                    const res = await fetch('http://localhost:1337/players');
-                    if (res.ok) {
-                        players = await res.json();
-                        break; // Sai do loop se o fetch for bem-sucedido
-                    } else {
-                        console.warn(`Fetch players failed with status ${res.status}. Retrying in ${delay}ms...`);
-                    }
-                } catch (err) {
-                    console.error(`Fetch players failed: ${err.message}. Retrying in ${delay}ms...`);
-                }
-                await new Promise(resolve => setTimeout(resolve, delay));
-                retries--;
-            }
-            if (retries === 0 && players.length === 0) {
-                console.error('Failed to fetch players after multiple retries.');
-            }
-            return players;
-        }
-
-        const notificationQueue = [];
-        let isShowingNotification = false;
-        const RA_URL = "https://retroachievements.org/";
-        const shownAchievements = new Set();
-        const shownPlatinums = new Set();
-
-        function showNotification(notification) {
-            notificationQueue.push(notification);
-            processNotificationQueue();
-        }
-
-        async function processNotificationQueue() {
-            if (isShowingNotification || notificationQueue.length === 0) return;
-
-            isShowingNotification = true;
-
-            const { type, data } = notificationQueue.shift();
-
-            if (type === 'achievement') {
-                await processAchievement(data);
-            } else if (type === 'platinum') {
-                await processPlatinum(data);
-            }
-
-            isShowingNotification = false;
-
-            // Processa a próxima notificação na fila
-            if (notificationQueue.length > 0) {
-                processNotificationQueue();
-            }
-        }
-
-        async function processAchievement(achievement) {
-            const { achievementId, player, title, iconUrl, chievoDesc, chievoTimestamp, chievoPoints, gameName, gameConsole, userPhoto } = achievement;
-
-            try {
-                // Verifica no backend se a conquista já existe
-                const response = await fetch(`http://localhost:1337/achievement/exists/${achievementId}`);
-                const exists = await response.json();
-
-                if (exists) {
-                    console.log(`Conquista já existe no backend: ${achievementId}`);
-                    return; // Não exibe novamente
-                }
-            } catch (error) {
-                console.error('Erro ao verificar conquista no backend:', error);
-                return; // Evita exibir em caso de erro na verificação
-            }
-
-            console.log('Exibindo conquista:', achievement);
-
-            const popup = document.getElementById('achievement-popup');
-            const text = document.getElementById('achievement-text');
-            const cabe = document.getElementById('conquista-titulo');
-            const icon = document.getElementById('achievement-icon');
-            const playerElement = document.getElementById('chievo-player');
-
-            const date = document.getElementById('date');
-            const userPhotoElement = document.getElementById('userPhoto');
-
-            userPhotoElement.src = RA_URL + userPhoto;
-            cabe.innerHTML = `${gameName} - ${gameConsole} <br>`;
-            cabe.style.fontWeight = 'bold';
-            playerElement.innerHTML = `<strong>${player}</strong>`;
-            text.innerHTML = `${title}`;
-
-            icon.src = RA_URL + iconUrl;
-            popup.style.display = 'flex';
-
-            const chocolateBranco = document.getElementById('chocolate-branco');
-            const specialAchievement = document.getElementById('special-achievement');
-            const audio = document.getElementById('achievement-sound');
-            const fifty = document.getElementById('fifty');
-
-            // Para garantir que nenhum som fique tocando junto:
-            [chocolateBranco, specialAchievement, audio].forEach(aud => {
-                if (aud) {
-                    aud.pause();
-                    aud.currentTime = 0;
-                }
-            });
-
-            if (player === 'lulinhaa') {
-                if (chocolateBranco) chocolateBranco.play();
-            } else if (Number(chievoPoints) == 25) {
-                if (specialAchievement) specialAchievement.play();
-            } else if (Number(chievoPoints) >= 50) {
-                if (fifty) fifty.play();
-            } else if (audio) {
-                audio.play();
-            }
-
-            // Aguarda 6 segundos antes de esconder o popup
-            await new Promise(resolve => setTimeout(resolve, 6000));
-            popup.style.display = 'none';
-
-            // Envia a conquista para o backend
-            try {
-                const response = await fetch('http://localhost:1337/achievement', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        player,
-                        title,
-                        iconUrl: RA_URL + iconUrl,
-                        chievoDesc,
-                        chievoTimestamp,
-                        chievoPoints,
-                        gameName,
-                        gameConsole,
-                        achievementId,
-                        userPhoto: RA_URL + userPhoto
-                    })
-                });
-
-                if (!response.ok) {
-                    console.error('Erro ao salvar conquista:', response.statusText);
-                } else {
-                    console.log('Conquista salva com sucesso!');
-                }
-            } catch (error) {
-                console.error('Erro na requisição POST:', error);
-            }
-        }
-
-
-
-
-        async function checkPlatinums() {
-            let players = await fetchPlayers()
-            if (!players || players.length === 0) return;
-
-            const now = new Date();
-            const offsetDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-            const targetDate = offsetDate.toISOString().split('T')[0];
-
-            try {
-                const response = await fetch('http://localhost:1337/platinums', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ players })
-                });
-
-                if (!response.ok) {
-                    console.error('Failed to fetch platinums:', response.statusText);
-                    return;
-                }
-
-                const results = await response.json();
-
-                results.forEach(({ player, platinum, userPhoto }) => {
-                    if (platinum) {
-                        const awardedDate = new Date(platinum.awardedAt).toISOString().split('T')[0];
-                        if (awardedDate === targetDate) {
-                            console.log(`Player: ${player}, Platinum Title: ${platinum.title}, Date: ${platinum.awardedAt}, UserPhoto: ${userPhoto}`);
-                            showNotification({
-                                type: 'platinum',
-                                data: {
-                                    player,
-                                    title: platinum.title,
-                                    consoleName: platinum.consoleName,
-                                    awardedAt: platinum.awardedAt,
-                                    imageIcon: platinum.imageIcon,
-                                    userPhoto: userPhoto
-                                }
-                            });
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Error checking platinums:', error);
-            }
-        }
-        async function processPlatinum(platinum) {
-            const { player, title, consoleName, awardedAt, imageIcon, userPhoto } = platinum;
-            const platinumKey = `${player}-${title}-${awardedAt}`;
-            if (shownPlatinums.has(platinumKey)) {
-                console.log(`Platina já exibida: ${platinumKey}`);
-                return;
-            }
-    try {
-        const response = await fetch('http://localhost:1337/achievement/chievoData.json');
-        if (response.ok) {
-            const chievos = await response.json();
-            const alreadyExists = chievos.some(c =>
-                c.player === player &&
-                c.title === title &&
-                c.gameConsole === consoleName
-            );
-            if (alreadyExists) {
-                console.log('Platina já registrada no chievoData.json, não exibindo.');
-                return;
-            }
-        }
-    } catch (error) {
-        console.error('Erro ao verificar chievoData.json:', error);
-    }
-
-            // Marca a platina como exibida
-            shownPlatinums.add(platinumKey);
-
-            console.log('Exibindo platina:', platinum);
-
-            const popup = document.getElementById('achievement-popup');
-            const text = document.getElementById('achievement-text');
-            const cabe = document.getElementById('conquista-titulo');
-            const userPhotoElement = document.getElementById('userPhoto');
-            const icon = document.getElementById('achievement-icon');
-            const playerElement = document.getElementById('chievo-player');
-
-
-            userPhotoElement.src = RA_URL + userPhoto;
-            icon.src = RA_URL + imageIcon;
-            playerElement.innerHTML = `<strong>🎉${player}🎉</strong>`;
-            cabe.innerHTML = `🎉 PLATINOU o jogo! 🎉`;
-            cabe.style.fontWeight = 'bold';
-            text.innerHTML = `${title} - ${consoleName}<br>`;
-            popup.classList.add('platinum-popup');
-            popup.style.display = 'flex';
-
-            const audio = document.getElementById('platinum-sound');
-            if (audio) {
-                audio.currentTime = 0;
-                audio.play();
-            }
-
-            // Aguarda 6 segundos antes de esconder o popup
-            await new Promise(resolve => setTimeout(resolve, 6000));
-            popup.style.display = 'none';
-            popup.classList.remove('platinum-popup');
-
-            // Envia a platina para o backend
-            try {
-                const response = await fetch('http://localhost:1337/platinums/savePlatinum', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        player,
-                        title,
-                        consoleName,
-                        awardedAt,
-                        imageIcon: RA_URL + imageIcon,
-                        userPhoto: RA_URL + userPhoto
-                    })
-                });
-
-                if (!response.ok) {
-                    console.error('Erro ao salvar platina:', response.statusText);
-                } else {
-                    console.log('Platina salva com sucesso!');
-                }
-            } catch (error) {
-                console.error('Erro na requisição POST:', error);
-            }
-        }
-
-        function showAchievement(achievement) {
-            showNotification({ type: 'achievement', data: achievement });
-        }
-
-        async function startWatching() {
-            console.log('Starting to watch players for achievements and platinums');
-            let players = await fetchPlayers();
-
-            if (!players || players.length === 0) {
-                console.error('No players available to watch.');
-                return;
-            }
-
-            async function watchPlayersWithDelay() {
-                console.log(players);
-                players = await fetchPlayers();
-                await watchAllPlayers(players, showAchievement);
-                setTimeout(watchPlayersWithDelay, 10000);
-            }
-
-            watchPlayersWithDelay();
-            setInterval(() => checkPlatinums(), 60000);
-        }
-
-        startWatching();
+            document.getElementById('achievement-sound').src = resolveAudioPath(custom.achievement, DEFAULT_SOUNDS.achievement, 'achievement');
+            document.getElementById('chocolate-branco').src = resolveAudioPath(custom.chocolateBranco, DEFAULT_SOUNDS.chocolateBranco, 'chocolateBranco');
+            document.getElementById('special-achievement').src = resolveAudioPath(custom.specialAchievement, DEFAULT_SOUNDS.specialAchievement, 'specialAchievement');
+            document.getElementById('fifty').src = resolveAudioPath(custom.superAchievement, DEFAULT_SOUNDS.superAchievement, 'superAchievement');
+            document.getElementById('platinum-sound').src = resolveAudioPath(custom.platinum, DEFAULT_SOUNDS.platinum, 'platinum');
+        });
     </script>
+<script type="module" src="./API/frontJs.js"></script>
 </body>
 
 </html>

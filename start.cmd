@@ -20,10 +20,10 @@ if not exist ".env" (
     echo ==========================================
     echo Arquivo .env NAO encontrado!
     echo Informe o usuario RetroAchievements:
-    set /p USERNAME=
+    set /p RA_USERNAME=
     echo Informe a chave da API RetroAchievements:
     set /p APIKEY=
-    echo username=!USERNAME!> .env
+    echo ra_username=!RA_USERNAME!> .env
     echo webApiKey=!APIKEY!>> .env
     echo ==========================================
     echo Arquivo .env criado com sucesso!

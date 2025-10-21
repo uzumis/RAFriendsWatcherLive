@@ -1,3 +1,5 @@
+# Cache da API
+cache/
 # Node.js
 node_modules/
 npm-debug.log*
@@ -32,6 +34,8 @@ Thumbs.db
 # Backup
 *.bak
 
-# Ignorar arquivos de som e imagens grandes (se necessário)
-# som/*.mp3
-# img/
+
+# Manter a pasta som no repo, mas ignorar arquivos dentro dela (exceto .gitkeep)
+som/*
+!som/
+!som/.gitkeep
