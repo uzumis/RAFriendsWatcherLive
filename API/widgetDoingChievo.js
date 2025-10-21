@@ -43,34 +43,57 @@ if (!searchInput) {
   resultadoDiv.appendChild(searchInput);
 }
 let achArrayGlobal = [];
+let showMissableOnly = false;
 
 function renderProgression(achievements, username) {
   resultadoDiv.innerHTML = '';
+  // Botão filtro missable
+  const missableBtn = document.createElement('button');
+  missableBtn.textContent = showMissableOnly ? 'Mostrar todas' : 'Mostrar só conquistas perdíveis (missable)';
+  missableBtn.style.margin = '0 0 10px 0';
+  missableBtn.style.background = '#222';
+  missableBtn.style.color = '#ff0';
+  missableBtn.style.border = '1px solid #ff0';
+  missableBtn.style.borderRadius = '6px';
+  missableBtn.style.padding = '6px 12px';
+  missableBtn.style.cursor = 'pointer';
+  missableBtn.onclick = function() {
+    showMissableOnly = !showMissableOnly;
+    renderProgression(achievements, username);
+  };
+  resultadoDiv.appendChild(missableBtn);
   resultadoDiv.appendChild(searchInput);
   if (achievements && typeof achievements === 'object') {
     // Corrige o nome do usuário para primeira letra maiúscula
     const formatUsername = u => u ? u.charAt(0).toUpperCase() + u.slice(1) : '';
-    achArrayGlobal = Object.values(achievements).filter(a => !a.dateEarnedHardcore);
+    achArrayGlobal = Object.values(achievements)
+      .filter(a => !a.dateEarnedHardcore && !a.DateEarned);
+    let filteredArray = achArrayGlobal;
+    if (showMissableOnly) {
+      filteredArray = achArrayGlobal.filter(a => a.type === 'missable');
+    }
     const usernameFormatted = formatUsername(username);
-    if (achArrayGlobal.length === 0) {
+    if (filteredArray.length === 0) {
       const msg = document.createElement('div');
-      msg.textContent = 'conseguiu todas as conquistas';
+      msg.textContent = showMissableOnly ? 'Nenhuma conquista missable encontrada.' : 'conseguiu todas as conquistas';
       msg.style.color = '#ff0';
       msg.style.fontSize = '1.1em';
       msg.style.margin = '24px 0';
       resultadoDiv.appendChild(msg);
       // Card especial de todas as conquistas
-      document.getElementById('cardConquista').innerHTML = `
-        <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
-          <span style='font-size:64px;margin-right:16px;'>🏆</span>
-          <div style='flex:1;'>
-            <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${usernameFormatted} conseguiu todas as conquistas!</div>
-            <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>Parabéns!</div>
-            <div style='color:#fff;margin:8px 0;'>Você completou todos os desafios!</div>
-            <div style='color:#ff0;font-size:1em;'>Troféu máximo!</div>
+      if (!showMissableOnly) {
+        document.getElementById('cardConquista').innerHTML = `
+          <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
+            <span style='font-size:64px;margin-right:16px;'>🏆</span>
+            <div style='flex:1;'>
+              <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${usernameFormatted} conseguiu todas as conquistas!</div>
+              <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>Parabéns!</div>
+              <div style='color:#fff;margin:8px 0;'>Você completou todos os desafios!</div>
+              <div style='color:#ff0;font-size:1em;'>Troféu máximo!</div>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      }
     } else {
       const lista = document.createElement('ul');
       lista.style.listStyle = 'none';
@@ -83,8 +106,8 @@ function renderProgression(achievements, username) {
       lista.style.background = '#181818';
       lista.style.borderRadius = '8px';
       lista.style.border = '1px solid #333';
-      for (let i = 0; i < achArrayGlobal.length; i++) {
-        const achievement = achArrayGlobal[i];
+      for (let i = 0; i < filteredArray.length; i++) {
+        const achievement = filteredArray[i];
         const item = document.createElement('li');
         item.style.marginBottom = '12px';
         item.style.display = 'flex';
@@ -116,7 +139,6 @@ function renderProgression(achievements, username) {
 
         // Título (botão)
         const btn = document.createElement('button');
-        btn.textContent = achievement.title;
         btn.style.background = '#333';
         btn.style.color = '#0ff';
         btn.style.border = '1px solid #0ff';
@@ -126,6 +148,11 @@ function renderProgression(achievements, username) {
         btn.onclick = function() {
           renderCard(achievement, usernameFormatted);
         };
+        // Texto do botão
+        btn.innerHTML = achievement.title;
+        if (achievement.type === 'missable') {
+          btn.innerHTML += " <span style='color:#f00;font-weight:bold;'>! (M)</span>";
+        }
         contentDiv.appendChild(btn);
 
         // Descrição
