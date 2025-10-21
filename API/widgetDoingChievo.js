@@ -117,6 +117,7 @@ function renderProgression(achievements, username) {
         item.style.borderRadius = '8px';
         item.style.padding = '8px 12px';
         item.style.border = '1px solid #333';
+        item.style.display = 'flex';
 
         // Imagem
         const img = document.createElement('img');
@@ -210,7 +211,7 @@ searchInput.addEventListener('input', function() {
     const titleMatch = btn.textContent.toLowerCase().includes(termo);
     const descMatch = achievement && achievement.description && achievement.description.toLowerCase().includes(termo);
     if (titleMatch || descMatch) {
-      item.style.display = '';
+      item.style.display = 'flex';
     } else {
       item.style.display = 'none';
     }
