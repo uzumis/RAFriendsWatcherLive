@@ -17,7 +17,7 @@
 
         document.getElementById('resultado').innerHTML = '';
         if (achievements && typeof achievements === 'object') {
-          const achArray = Object.values(achievements);
+          const achArray = Object.values(achievements).filter(a => !a.dateEarnedHardcore);
           const lista = document.createElement('ul');
           lista.style.listStyle = 'none';
           lista.style.padding = '0';
@@ -32,7 +32,35 @@
           for (let i = 0; i < achArray.length; i++) {
             const achievement = achArray[i];
             const item = document.createElement('li');
-            item.style.marginBottom = '8px';
+            item.style.marginBottom = '12px';
+            item.style.display = 'flex';
+            item.style.alignItems = 'center';
+            item.style.gap = '12px';
+            item.style.background = '#222';
+            item.style.borderRadius = '8px';
+            item.style.padding = '8px 12px';
+            item.style.border = '1px solid #333';
+
+            // Imagem
+            const img = document.createElement('img');
+            let badgeName = achievement.badgeName;
+            if (!achievement.dateEarnedHardcore) {
+              badgeName += '_lock';
+            }
+            img.src = `https://media.retroachievements.org/Badge/${badgeName}.png`;
+            img.alt = 'Badge';
+            img.style.width = '40px';
+            img.style.height = '40px';
+            img.style.borderRadius = '6px';
+            img.style.border = '2px solid #444';
+            img.style.background = '#222';
+            item.appendChild(img);
+
+            // Conteúdo
+            const contentDiv = document.createElement('div');
+            contentDiv.style.flex = '1';
+
+            // Título (botão)
             const btn = document.createElement('button');
             btn.textContent = achievement.title;
             btn.style.background = '#333';
@@ -44,12 +72,46 @@
             btn.onclick = function() {
               renderCard(achievement, username);
             };
-            item.appendChild(btn);
+            contentDiv.appendChild(btn);
+
+            // Descrição
+            const desc = document.createElement('div');
+            desc.textContent = achievement.description;
+            desc.style.color = '#fff';
+            desc.style.fontSize = '0.95em';
+            desc.style.marginTop = '4px';
+            contentDiv.appendChild(desc);
+
+            item.appendChild(contentDiv);
             lista.appendChild(item);
           }
           document.getElementById('resultado').appendChild(lista);
 
           // Função para renderizar card
+          let meme = [
+            "está querendo a conquista",
+            "está sofrendo por uma conquista",
+            "não consegue a conquista",
+            "quer muito a conquista",
+            "deseja ardentemente a conquista",
+            "está chorando por uma conquista",
+            "está aborrecido pela conquista",
+            "não desiste em ter a conquista",
+            "já sonhou com essa conquista umas 3 vezes",
+            "pediu ajuda até pro chatGPT pra conseguir essa conquista",
+            "prometeu que vai dormir só depois de pegar essa conquista",
+            "está quase fazendo promessa pra conseguir essa conquista",
+            "já pensou em desistir, mas a conquista não deixa",
+            "está em modo hardcore só pra essa conquista",
+            "essa conquista virou meta de vida",
+            "já fez até macumba pra essa conquista",
+            "essa conquista está no topo da lista de desejos",
+            "já pediu conselho pra guru da conquista",
+            "essa conquista virou meme no grupo",
+            "está em busca da lendária conquista perdida",
+            "essa conquista está mais difícil que final de Dark Souls"
+          ];
+          
           function renderCard(achievement, username) {
             let badgeName = achievement.badgeName;
             if (!achievement.dateEarnedHardcore) {
@@ -59,7 +121,7 @@
               <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
                 <img src='https://media.retroachievements.org/Badge/${badgeName}.png' alt='Badge' style='width:64px;height:64px;border-radius:8px;border:2px solid #444;background:#222;'>
                 <div style='flex:1;'>
-                  <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${username} está querendo a conquista:</div>
+                  <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${username} ${meme[Math.floor(Math.random()*meme.length)]}:</div>
                   <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>${achievement.title}</div>
                   <div style='color:#fff;margin:8px 0;'>${achievement.description}</div>
                   <div style='color:#ff0;font-size:1em;'>${achievement.points} pontos</div>
@@ -67,6 +129,8 @@
               </div>
             `;
           }
+
+
 
           // Input de busca
           const searchInput = document.createElement('input');

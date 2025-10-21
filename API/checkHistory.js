@@ -38,8 +38,9 @@ function renderChievos(conquistas) {
       <div class="player-info">
         <img src="${data.userPhoto}" alt="${player}" class="${playersWithPlatinumToday.has(player) ? 'highlight' : ''}">
         <strong>${index + 1}. ${player}</strong>
+         <span class="points">${data.points} pontos</span>
       </div>
-      <span class="points">${data.points} pontos</span>
+     
     </a>
     `;
     leaderboard.appendChild(li);
@@ -109,7 +110,7 @@ deleteBtn.addEventListener('click', async () => {
         hour: '2-digit',
         minute: '2-digit'
       })}<br>
-            Jogador: ${c.player}
+            Jogador: <span class="player-name">${c.player}</span>
           </span>
         </span>
       `;
@@ -128,7 +129,7 @@ deleteBtn.addEventListener('click', async () => {
         hour: '2-digit',
         minute: '2-digit'
       })}<br>
-            Jogador: ${c.player}
+            Jogador: <span class="player-name">${c.player}</span>
           </span>
         </span>
         </a>

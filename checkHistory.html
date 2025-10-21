@@ -171,7 +171,54 @@
 background:#23283a; color:#ffd700; padding:24px 32px; border-radius:12px; box-shadow:0 4px 16px #0008; z-index:2000; font-size:1.3rem;">
     URL copiada para OBS!
   </div>
-  <div id="quick-links" style="display: flex; gap: 18px; justify-content: center; margin: 24px 0;">
+  <div class = "links__container">
+  <script>
+    // Torna o #quick-links arrastável como uma janela
+    (function makeQuickLinksDraggable() {
+      const quickLinks = document.getElementById('sidekick-menu');
+      let isDragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
+
+      quickLinks.addEventListener('mousedown', function(e) {
+        // Só inicia o drag se clicar fora dos botões/links
+        if (e.target.closest('a,button')) return;
+        isDragging = true;
+        offsetX = e.clientX - quickLinks.getBoundingClientRect().left;
+        offsetY = e.clientY - quickLinks.getBoundingClientRect().top;
+        quickLinks.style.transition = 'none';
+        document.body.style.userSelect = 'none';
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        let newLeft = e.clientX - offsetX;
+        let newTop = e.clientY - offsetY;
+        // Mantém dentro da viewport
+        const minLeft = 0;
+        const minTop = 0;
+        const maxLeft = window.innerWidth - quickLinks.offsetWidth;
+        const maxTop = window.innerHeight - quickLinks.offsetHeight;
+        newLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
+        newTop = Math.max(minTop, Math.min(newTop, maxTop));
+        quickLinks.style.left = newLeft + 'px';
+        quickLinks.style.top = newTop + 'px';
+        quickLinks.style.right = '';
+        quickLinks.style.bottom = '';
+        quickLinks.style.transform = 'none';
+      });
+
+      document.addEventListener('mouseup', function() {
+        if (isDragging) {
+          isDragging = false;
+          document.body.style.userSelect = '';
+        }
+      });
+    })();
+  </script>
+  <div class="links__container">
+    
+  </div>
     <div style="display: flex; align-items: center; gap: 8px;">
       <a href="index.html" target="_blank"
         style="background: #23283a; color: #ffd700; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: bold; box-shadow: 0 2px 8px #23283a55;">
@@ -223,7 +270,15 @@ background:#23283a; color:#ffd700; padding:24px 32px; border-radius:12px; box-sh
     </div>
   </div>
   <div id="main-content">
-    <ul id="conquistas-list"></ul>
+  <input type="text" id="search-player" placeholder="Pesquisar jogador..." style=    "position: absolute;
+    width: 200px;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1.1em;
+    top: 20px;">
+  <ul id="conquistas-list"></ul>
     <div id="leaderboard">
       <ul></ul>
     </div>
@@ -235,6 +290,19 @@ background:#23283a; color:#ffd700; padding:24px 32px; border-radius:12px; box-sh
 
 
   <script>
+    // Filtro de conquistas por nome do jogador
+    document.getElementById('search-player').addEventListener('input', function(e) {
+      const termo = e.target.value.toLowerCase();
+      const lista = document.getElementById('conquistas-list');
+      Array.from(lista.children).forEach(item => {
+        const nome = item.querySelector('.player-name');
+        if (!nome || nome.textContent.toLowerCase().includes(termo)) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
     // Accordion do sidekick
     const sidekickToggle = document.getElementById('sidekick-toggle');
     const sidekickMenu = document.getElementById('sidekick-menu');
@@ -245,6 +313,7 @@ background:#23283a; color:#ffd700; padding:24px 32px; border-radius:12px; box-sh
       if (sidekickOpen) {
         sidekickMenu.style.maxWidth = '500px';
         sidekickMenu.style.opacity = '1';
+        sidekickMenu.style.cursor = 'move';
         document.getElementById('sidekick-arrow-svg').style.transform = 'rotate(0deg)';
         sidekickToggle.title = 'Recolher painel';
       } else {

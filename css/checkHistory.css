@@ -123,6 +123,8 @@ h1, h2 {
     word-break: break-word;
     box-sizing: border-box;
     flex-direction: column;
+    width: 100%;
+    height: 130px;
     align-items: center;
     justify-content: center;
 }
@@ -156,8 +158,7 @@ h1, h2 {
 }
 
 #leaderboard li img {
-  width: 128px;
-  height: 128px;
+  width: 50px;
   border-radius: 50%; /* círculo */
   object-fit: cover;
   border: 2px solid #ffd700;
@@ -189,6 +190,7 @@ h1, h2 {
 #sidekick-menu {
   position: fixed;
   top: 50%;
+  cursor: move;
   left: 0;
   transform: translateY(-50%);
   background: #23283a;
@@ -310,4 +312,10 @@ a, a:visited, a:active, a:hover, a:focus {
   color: inherit;
   outline: none;
   box-shadow: none;
+}
+
+.links__container{
+      display: flex
+;
+    justify-content: center;
 }
