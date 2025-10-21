@@ -47,7 +47,10 @@ router.get('/achievements', async (req, res) => {
       }
     );
 
-    res.json(gameInfoAndUserProgress.achievements);
+    res.json({
+      username,
+      achievements: gameInfoAndUserProgress.achievements
+    });
   } catch (err) {
     res.status(500).json({ error: 'Erro ao buscar conquistas', details: err.message });
   }

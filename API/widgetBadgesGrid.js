@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const grid = document.getElementById('badgesGrid');
   async function renderBadges() {
     const res = await fetch('/mainuser/achievements');
-    const achievements = await res.json();
+    const data = await res.json();
+    const achievements = data.achievements;
     grid.innerHTML = '';
     let achArray = Object.values(achievements);
     // Ordena: conquistas com dateEarnedHardcore primeiro

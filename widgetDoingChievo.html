@@ -8,7 +8,9 @@
       try {
         const response = await fetch('/mainuser/achievements');
         if (!response.ok) throw new Error('Erro na requisição: ' + response.status);
-        const achievements = await response.json();
+        const data = await response.json();
+        const username = (data.username || '').toUpperCase();
+        const achievements = data.achievements;
 
         document.getElementById('resultado').innerHTML = '';
         if (achievements && typeof achievements === 'object') {
@@ -37,7 +39,7 @@
             btn.style.padding = '6px 12px';
             btn.style.cursor = 'pointer';
             btn.onclick = function() {
-              renderCard(achievement);
+              renderCard(achievement, username);
             };
             item.appendChild(btn);
             lista.appendChild(item);
@@ -45,7 +47,7 @@
           document.getElementById('resultado').appendChild(lista);
 
           // Função para renderizar card
-          function renderCard(achievement) {
+          function renderCard(achievement, username) {
             let badgeName = achievement.badgeName;
             if (!achievement.dateEarnedHardcore) {
               badgeName += '_lock';
@@ -54,7 +56,7 @@
               <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
                 <img src='https://media.retroachievements.org/Badge/${badgeName}.png' alt='Badge' style='width:64px;height:64px;border-radius:8px;border:2px solid #444;background:#222;'>
                 <div style='flex:1;'>
-                  <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>Uzuma está querendo a conquista:</div>
+                  <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${username} está querendo a conquista:</div>
                   <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>${achievement.title}</div>
                   <div style='color:#fff;margin:8px 0;'>${achievement.description}</div>
                   <div style='color:#ff0;font-size:1em;'>${achievement.points} pontos</div>
