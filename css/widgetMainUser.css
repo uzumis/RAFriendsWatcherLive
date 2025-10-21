@@ -37,6 +37,8 @@
 .main-user-completion {
   font-size: 1em;
   color: #0ff;
+  background-color: black;
+  border-radius: 8px;
 }
 
 .main-user-completion span {
