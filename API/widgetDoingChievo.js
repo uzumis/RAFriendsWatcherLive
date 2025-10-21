@@ -1,5 +1,5 @@
 // API/widgetDoingChievo.js
-import { onSharedAchievementsUpdate, sharedAchievementsUsername } from './sharedAchievements.js';
+// Busca do backend a cada segundo
 
 let meme = [
   "está querendo a conquista",
@@ -28,7 +28,10 @@ let meme = [
 function renderProgression(achievements, username) {
   document.getElementById('resultado').innerHTML = '';
   if (achievements && typeof achievements === 'object') {
+    // Corrige o nome do usuário para primeira letra maiúscula
+    const formatUsername = u => u ? u.charAt(0).toUpperCase() + u.slice(1) : '';
     const achArray = Object.values(achievements).filter(a => !a.dateEarnedHardcore);
+    const usernameFormatted = formatUsername(username);
     if (achArray.length === 0) {
       const msg = document.createElement('div');
       msg.textContent = 'conseguiu todas as conquistas';
@@ -41,7 +44,7 @@ function renderProgression(achievements, username) {
         <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
           <span style='font-size:64px;margin-right:16px;'>🏆</span>
           <div style='flex:1;'>
-            <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${username} conseguiu todas as conquistas!</div>
+            <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${usernameFormatted} conseguiu todas as conquistas!</div>
             <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>Parabéns!</div>
             <div style='color:#fff;margin:8px 0;'>Você completou todos os desafios!</div>
             <div style='color:#ff0;font-size:1em;'>Troféu máximo!</div>
@@ -101,7 +104,7 @@ function renderProgression(achievements, username) {
         btn.style.padding = '6px 12px';
         btn.style.cursor = 'pointer';
         btn.onclick = function() {
-          renderCard(achievement, username);
+          renderCard(achievement, usernameFormatted);
         };
         contentDiv.appendChild(btn);
 
@@ -178,7 +181,25 @@ function renderProgression(achievements, username) {
   }
 }
 
-// Sincroniza com dados compartilhados ao carregar o módulo
-onSharedAchievementsUpdate((achievements, username) => {
-  renderProgression(achievements, username || sharedAchievementsUsername);
-});
+
+let lastData = null;
+let lastUsername = '';
+
+async function fetchAndUpdate() {
+  try {
+    const res = await fetch('/mainuser/achievements');
+    if (!res.ok) return;
+    const data = await res.json();
+    // Só atualiza se mudou
+    if (JSON.stringify(data.achievements) !== JSON.stringify(lastData)) {
+      lastData = data.achievements;
+      lastUsername = data.username;
+      renderProgression(data.achievements, data.username);
+    }
+  } catch (e) {
+    // Não faz nada se der erro
+  }
+}
+
+setInterval(fetchAndUpdate, 1000);
+fetchAndUpdate();

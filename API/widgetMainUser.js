@@ -1,11 +1,12 @@
-document.addEventListener('DOMContentLoaded', async () => {
+
+document.addEventListener('DOMContentLoaded', () => {
   const card = document.getElementById('mainUserCard');
   let lastValidData = null;
-  async function renderMainUser() {
+
+  async function fetchAndUpdate() {
     try {
       const res = await fetch('/mainuser');
       const data = await res.json();
-      // Verifica se os dados são válidos
       if (
         data &&
         typeof data === 'object' &&
@@ -24,31 +25,12 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="main-user-achievements"><span>${data.numAwardedToUserHardcore} / ${data.numAchievements}</span></div>
             </div>
         `;
-      } else if (lastValidData) {
-        const d = lastValidData;
-        card.innerHTML = `
-            <div class="main-user-stats">
-              <div class="main-user-completion"><span>${d.userCompletionHardcore}</span></div>
-              <div class="main-user-achievements"><span>${d.numAwardedToUserHardcore} / ${d.numAchievements}</span></div>
-            </div>
-        `;
-      } else {
-        card.innerHTML = `<div class="main-user-error">Erro ao carregar dados do usuário</div>`;
       }
     } catch (err) {
-      if (lastValidData) {
-        const d = lastValidData;
-        card.innerHTML = `
-            <div class="main-user-stats">
-              <div class="main-user-completion"><span>${d.userCompletionHardcore}</span></div>
-              <div class="main-user-achievements"><span>${d.numAwardedToUserHardcore} / ${d.numAchievements}</span></div>
-            </div>
-        `;
-      } else {
-        card.innerHTML = `<div class="main-user-error">Erro ao carregar dados do usuário</div>`;
-      }
+      // Não faz nada se der erro
     }
   }
-  await renderMainUser();
-  setInterval(renderMainUser, 50000);
+
+  setInterval(fetchAndUpdate, 1000);
+  fetchAndUpdate();
 });

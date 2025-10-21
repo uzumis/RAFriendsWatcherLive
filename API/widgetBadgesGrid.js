@@ -1,8 +1,8 @@
 
-import { onSharedAchievementsUpdate } from './sharedAchievements.js';
-
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.getElementById('badgesGrid');
+
+  let lastData = null;
 
   function renderBadges(achievements) {
     if (!achievements) return;
@@ -38,10 +38,22 @@ document.addEventListener('DOMContentLoaded', () => {
     direction = 1;
   }
 
-  // Atualiza badges sempre que houver nova informação
-  onSharedAchievementsUpdate((achievements) => {
-    renderBadges(achievements);
-  });
+  async function fetchAndUpdate() {
+    try {
+      const res = await fetch('/mainuser/achievements');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (JSON.stringify(data.achievements) !== JSON.stringify(lastData)) {
+        lastData = data.achievements;
+        renderBadges(data.achievements);
+      }
+    } catch (e) {
+      // Não faz nada se der erro
+    }
+  }
+
+  setInterval(fetchAndUpdate, 1000);
+  fetchAndUpdate();
 
   // Auto scroll suave
   let direction = 1; // 1 = descendo, -1 = subindo
