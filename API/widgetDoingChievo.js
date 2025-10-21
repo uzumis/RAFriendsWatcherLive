@@ -1,6 +1,9 @@
 // API/widgetDoingChievo.js
 // Busca do backend a cada segundo
-
+let lastData = null;
+let lastUsername = '';
+let lastSelectedAchievementTitle = null;
+let userSelectedCard = false;
 let meme = [
   "está querendo a conquista",
   "está sofrendo por uma conquista",
@@ -45,7 +48,7 @@ if (!searchInput) {
 let achArrayGlobal = [];
 let showMissableOnly = false;
 
-function renderProgression(achievements, username) {
+function renderProgression(achievements, username, selectedTitle) {
   resultadoDiv.innerHTML = '';
   // Botão filtro missable
   const missableBtn = document.createElement('button');
@@ -59,15 +62,27 @@ function renderProgression(achievements, username) {
   missableBtn.style.cursor = 'pointer';
   missableBtn.onclick = function() {
     showMissableOnly = !showMissableOnly;
-    renderProgression(achievements, username);
+    missableBtn.textContent = showMissableOnly ? 'Mostrar todas' : 'Mostrar só conquistas perdíveis (missable)';
+    const lista = document.getElementById('conquistaLista');
+    if (lista) {
+      for (const item of lista.children) {
+        const btn = item.querySelector('button');
+        // Verifica se é missable
+        const isMissable = btn && btn.innerHTML.includes("! (M)");
+        if (showMissableOnly) {
+          item.style.display = isMissable ? 'flex' : 'none';
+        } else {
+          item.style.display = 'flex';
+        }
+      }
+    }
   };
   resultadoDiv.appendChild(missableBtn);
   resultadoDiv.appendChild(searchInput);
   if (achievements && typeof achievements === 'object') {
     // Corrige o nome do usuário para primeira letra maiúscula
     const formatUsername = u => u ? u.charAt(0).toUpperCase() + u.slice(1) : '';
-    achArrayGlobal = Object.values(achievements)
-      .filter(a => !a.dateEarnedHardcore && !a.DateEarned);
+    achArrayGlobal = Object.values(achievements);
     let filteredArray = achArrayGlobal;
     if (showMissableOnly) {
       filteredArray = achArrayGlobal.filter(a => a.type === 'missable');
@@ -147,6 +162,7 @@ function renderProgression(achievements, username) {
         btn.style.padding = '6px 12px';
         btn.style.cursor = 'pointer';
         btn.onclick = function() {
+          userSelectedCard = true;
           renderCard(achievement, usernameFormatted);
         };
         // Texto do botão
@@ -168,11 +184,24 @@ function renderProgression(achievements, username) {
         lista.appendChild(item);
       }
       resultadoDiv.appendChild(lista);
-      // Seleciona a primeira conquista ao carregar
-      if (lista.children.length > 0) {
-        const btn = lista.children[0].querySelector('button');
-        if (btn) btn.click();
+      // Seleciona o card previamente clicado, se existir na lista
+      let selectedBtn = null;
+      if (selectedTitle) {
+        for (let item of lista.children) {
+          const btn = item.querySelector('button');
+          if (btn && btn.textContent.replace(/ <span.*$/, '') === selectedTitle) {
+            selectedBtn = btn;
+            break;
+          }
+        }
       }
+      // Se a conquista selecionada não está mais na lista, atualiza automaticamente para a primeira
+      if (!selectedBtn && lista.children.length > 0) {
+        userSelectedCard = false;
+        selectedBtn = lista.children[0].querySelector('button');
+        if (selectedBtn) selectedBtn.click();
+      }
+      // Se o card selecionado existir, não faz nada (mantém o card atual)
     }
 
     // Função para renderizar card
@@ -192,6 +221,7 @@ function renderProgression(achievements, username) {
           </div>
         </div>
       `;
+      lastSelectedAchievementTitle = achievement.title;
     }
   } else {
     const msg = document.createElement('div');
@@ -205,11 +235,26 @@ searchInput.addEventListener('input', function() {
   const termo = searchInput.value.toLowerCase();
   const lista = document.getElementById('conquistaLista');
   if (!lista) return;
+  // Usa o array filtrado conforme o filtro missable
+  let searchArray = achArrayGlobal;
+  if (showMissableOnly) {
+    searchArray = achArrayGlobal.filter(a => a.type === 'missable');
+  }
   for (const item of lista.children) {
     const btn = item.querySelector('button');
-    const achievement = achArrayGlobal.find(a => a.title === btn.textContent);
+    // Título limpo, sem o span de missable
+    const btnTitle = btn.textContent.replace(/ <span.*$/, '');
+    const achievement = searchArray.find(a => a.title === btnTitle);
     const titleMatch = btn.textContent.toLowerCase().includes(termo);
-    const descMatch = achievement && achievement.description && achievement.description.toLowerCase().includes(termo);
+    // Busca pela descrição do objeto ou, se não existir, pelo texto do DOM
+    let descText = '';
+    if (achievement && achievement.description) {
+      descText = achievement.description.toLowerCase();
+    } else {
+      const descDiv = item.querySelector('div');
+      if (descDiv) descText = descDiv.textContent.toLowerCase();
+    }
+    const descMatch = descText.includes(termo);
     if (titleMatch || descMatch) {
       item.style.display = 'flex';
     } else {
@@ -219,8 +264,7 @@ searchInput.addEventListener('input', function() {
 });
 
 
-let lastData = null;
-let lastUsername = '';
+
 
 async function fetchAndUpdate() {
   try {
@@ -231,7 +275,7 @@ async function fetchAndUpdate() {
     if (JSON.stringify(data.achievements) !== JSON.stringify(lastData)) {
       lastData = data.achievements;
       lastUsername = data.username;
-      renderProgression(data.achievements, data.username);
+      renderProgression(data.achievements, data.username, lastSelectedAchievementTitle);
     }
   } catch (e) {
     // Não faz nada se der erro

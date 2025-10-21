@@ -5,6 +5,7 @@ let sharedAchievementsUsername = '';
 let sharedAchievementsListeners = [];
 
 async function fetchSharedAchievements() {
+  console.log('Buscando conquistas compartilhadas...');
   try {
     const response = await fetch('/mainuser/achievements');
     if (!response.ok) throw new Error('Erro na requisição: ' + response.status);
@@ -30,6 +31,6 @@ function onSharedAchievementsUpdate(fn) {
 
 // Atualiza a cada 30 segundos
 fetchSharedAchievements();
-setInterval(fetchSharedAchievements, 30000);
+setInterval(fetchSharedAchievements, 15000);
 
 export { onSharedAchievementsUpdate, fetchSharedAchievements, sharedAchievementsData, sharedAchievementsUsername };
