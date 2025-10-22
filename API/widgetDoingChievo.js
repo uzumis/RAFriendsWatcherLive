@@ -65,18 +65,9 @@ function renderProgression(achievements, username, selectedTitle) {
   missableBtn.onclick = function () {
     showMissableOnly = !showMissableOnly;
     missableBtn.textContent = showMissableOnly ? 'Mostrar todas' : 'Mostrar só conquistas perdíveis (missable)';
-    const lista = document.getElementById('conquistaLista');
-    if (lista) {
-      for (const item of lista.children) {
-        const btn = item.querySelector('button');
-        // Verifica se é missable
-        const isMissable = btn && btn.innerHTML.includes("!(M)");
-        if (showMissableOnly) {
-          item.style.display = isMissable ? 'flex' : 'none';
-        } else {
-          item.style.display = 'flex';
-        }
-      }
+    // Sempre re-renderiza a lista ao alternar o filtro
+    if (lastData && lastUsername) {
+      renderProgression(lastData, lastUsername, lastSelectedAchievementTitle);
     }
   };
   resultadoDiv.appendChild(missableBtn);
@@ -188,7 +179,8 @@ function renderProgression(achievements, username, selectedTitle) {
       }
       resultadoDiv.appendChild(lista);
       // Seleciona o card previamente clicado, se existir na lista
-      let foundSelected = false;
+  let foundSelected = false;
+  let selectedBtn = null;
       if (selectedTitle) {
         for (let item of lista.children) {
           const btn = item.querySelector('button');
