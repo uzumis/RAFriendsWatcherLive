@@ -252,7 +252,7 @@ function renderCard(achievement, username) {
         </div>
       </div>
     `;
-  lastSelectedAchievementTitle = achievement.title;
+  lastSelectedAchievementTitle = achievement.id;
 }
 
 // Renderização manual: sempre atualiza e seta manual
@@ -273,7 +273,7 @@ function manualRenderCard(achievement, username) {
         </div>
       </div>
     `;
-  lastSelectedAchievementTitle = achievement.title;
+  lastSelectedAchievementTitle = achievement.id;
   selectedManually = "true";
   console.log('Atualizando cardConquista:', achievement.title, '| Seleção manual:', selectedManually);
 }
