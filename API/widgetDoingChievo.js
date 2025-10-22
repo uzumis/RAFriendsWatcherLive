@@ -3,7 +3,8 @@
 let lastData = null;
 let lastUsername = '';
 let lastSelectedAchievementTitle = null;
-let userSelectedCard = false;
+let selectedManually = "false";
+console.log("Inicializado selectedManually como:", selectedManually);
 let meme = [
   "está querendo a conquista",
   "está sofrendo por uma conquista",
@@ -49,6 +50,7 @@ let achArrayGlobal = [];
 let showMissableOnly = false;
 
 function renderProgression(achievements, username, selectedTitle) {
+
   resultadoDiv.innerHTML = '';
   // Botão filtro missable
   const missableBtn = document.createElement('button');
@@ -60,7 +62,7 @@ function renderProgression(achievements, username, selectedTitle) {
   missableBtn.style.borderRadius = '6px';
   missableBtn.style.padding = '6px 12px';
   missableBtn.style.cursor = 'pointer';
-  missableBtn.onclick = function() {
+  missableBtn.onclick = function () {
     showMissableOnly = !showMissableOnly;
     missableBtn.textContent = showMissableOnly ? 'Mostrar todas' : 'Mostrar só conquistas perdíveis (missable)';
     const lista = document.getElementById('conquistaLista');
@@ -162,9 +164,9 @@ function renderProgression(achievements, username, selectedTitle) {
         btn.style.borderRadius = '6px';
         btn.style.padding = '6px 12px';
         btn.style.cursor = 'pointer';
-        btn.onclick = function() {
-          userSelectedCard = true;
-          renderCard(achievement, usernameFormatted);
+        btn.onclick = function () {
+          console.log("Clicado na conquista:", achievement.title);
+          manualRenderCard(achievement, usernameFormatted);
         };
         // Texto do botão
         btn.innerHTML = achievement.title;
@@ -186,44 +188,34 @@ function renderProgression(achievements, username, selectedTitle) {
       }
       resultadoDiv.appendChild(lista);
       // Seleciona o card previamente clicado, se existir na lista
-      let selectedBtn = null;
+      let foundSelected = false;
       if (selectedTitle) {
         for (let item of lista.children) {
           const btn = item.querySelector('button');
           if (btn && btn.textContent.replace(/ <span.*$/, '') === selectedTitle) {
             selectedBtn = btn;
+            foundSelected = true;
             break;
           }
         }
+        // Se não encontrou a conquista selecionada, reseta selectedManually e faz auto render
+        if (!foundSelected) {
+          selectedManually = "false";
+          lastSelectedAchievementTitle = null;
+          // Se houver conquistas, renderiza a primeira automaticamente
+          if (filteredArray.length > 0) {
+            renderCard(filteredArray[0], usernameFormatted);
+          }
+        }
+      } else {
+        // Se não há seleção manual, renderiza a primeira conquista ao carregar
+        if (filteredArray.length > 0 && selectedManually === "false") {
+          renderCard(filteredArray[0], usernameFormatted);
+        }
       }
-      // Se a conquista selecionada não está mais na lista, atualiza automaticamente para a primeira
-      if (!selectedBtn && lista.children.length > 0) {
-        userSelectedCard = false;
-        selectedBtn = lista.children[0].querySelector('button');
-        if (selectedBtn) selectedBtn.click();
-      }
-      // Se o card selecionado existir, não faz nada (mantém o card atual)
     }
 
-    // Função para renderizar card
-    function renderCard(achievement, username) {
-      let badgeName = achievement.badgeName;
-      if (!achievement.dateEarnedHardcore) {
-        badgeName += '_lock';
-      }
-      document.getElementById('cardConquista').innerHTML = `
-        <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
-          <img src='https://media.retroachievements.org/Badge/${badgeName}.png' alt='Badge' style='width:64px;height:64px;border-radius:8px;border:2px solid #444;background:#222;'>
-          <div style='flex:1;'>
-            <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${username} ${meme[Math.floor(Math.random()*meme.length)]}:</div>
-            <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>${achievement.title}</div>
-            <div style='color:#fff;margin:8px 0;'>${achievement.description}</div>
-            <div style='color:#ff0;font-size:1em;'>${achievement.points} pontos</div>
-          </div>
-        </div>
-      `;
-      lastSelectedAchievementTitle = achievement.title;
-    }
+
   } else {
     const msg = document.createElement('div');
     msg.textContent = 'Nenhuma conquista encontrada.';
@@ -231,8 +223,59 @@ function renderProgression(achievements, username, selectedTitle) {
   }
 }
 
+
+
+
+// Renderização automática: só atualiza se não foi selecionado manualmente
+function renderCard(achievement, username) {
+  console.log("Auto render - SelectedManually:", selectedManually);
+  if (selectedManually == "true") {
+    console.log("Não alterando card por seleção manual.");
+    return;
+  }
+  let badgeName = achievement.badgeName;
+  if (!achievement.dateEarnedHardcore) {
+    badgeName += '_lock';
+  }
+  document.getElementById('cardConquista').innerHTML = `
+        <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
+        <img src='https://media.retroachievements.org/Badge/${badgeName}.png' alt='Badge' style='width:64px;height:64px;border-radius:8px;border:2px solid #444;background:#222;'>
+        <div style='flex:1;'>
+          <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${username} ${meme[Math.floor(Math.random() * meme.length)]}:</div>
+          <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>${achievement.title}</div>
+          <div style='color:#fff;margin:8px 0;'>${achievement.description}</div>
+          <div style='color:#ff0;font-size:1em;'>${achievement.points} pontos</div>
+        </div>
+      </div>
+    `;
+  lastSelectedAchievementTitle = achievement.title;
+}
+
+// Renderização manual: sempre atualiza e seta manual
+function manualRenderCard(achievement, username) {
+  console.log("Manual render - sempre atualiza card.");
+  let badgeName = achievement.badgeName;
+  if (!achievement.dateEarnedHardcore) {
+    badgeName += '_lock';
+  }
+  document.getElementById('cardConquista').innerHTML = `
+        <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
+        <img src='https://media.retroachievements.org/Badge/${badgeName}.png' alt='Badge' style='width:64px;height:64px;border-radius:8px;border:2px solid #444;background:#222;'>
+        <div style='flex:1;'>
+          <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${username} ${meme[Math.floor(Math.random() * meme.length)]}:</div>
+          <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>${achievement.title}</div>
+          <div style='color:#fff;margin:8px 0;'>${achievement.description}</div>
+          <div style='color:#ff0;font-size:1em;'>${achievement.points} pontos</div>
+        </div>
+      </div>
+    `;
+  lastSelectedAchievementTitle = achievement.title;
+  selectedManually = "true";
+  console.log('Atualizando cardConquista:', achievement.title, '| Seleção manual:', selectedManually);
+}
+
 // Filtro da lista (listener único)
-searchInput.addEventListener('input', function() {
+searchInput.addEventListener('input', function () {
   const termo = searchInput.value.toLowerCase();
   const lista = document.getElementById('conquistaLista');
   if (!lista) return;
