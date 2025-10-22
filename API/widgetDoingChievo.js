@@ -70,7 +70,7 @@ function renderProgression(achievements, username, selectedTitle) {
       for (const item of lista.children) {
         const btn = item.querySelector('button');
         // Verifica se é missable
-        const isMissable = btn && btn.innerHTML.includes("! (M)");
+        const isMissable = btn && btn.innerHTML.includes("!(M)");
         if (showMissableOnly) {
           item.style.display = isMissable ? 'flex' : 'none';
         } else {
@@ -192,26 +192,30 @@ function renderProgression(achievements, username, selectedTitle) {
       if (selectedTitle) {
         for (let item of lista.children) {
           const btn = item.querySelector('button');
-          if (btn && btn.textContent.replace(/ <span.*$/, '') === selectedTitle) {
+          // Busca o id da conquista associada ao botão
+          const idx = Array.from(lista.children).indexOf(item);
+          const achievement = filteredArray[idx];
+          // Compara pelo id da conquista
+          console.log(`[compare] achievement.id: '${achievement && achievement.id}' | lastSelectedAchievementTitle: '${lastSelectedAchievementTitle}'`);
+          if (achievement && achievement.id && achievement.id === lastSelectedAchievementTitle) {
             selectedBtn = btn;
             foundSelected = true;
+            console.log(`[compare] foundSelected = true para id: '${achievement.id}'`);
             break;
           }
         }
-        // Se não encontrou a conquista selecionada, reseta selectedManually e faz auto render
+        console.log(`[compare] Resultado final foundSelected: ${foundSelected} | selectedId: '${lastSelectedAchievementTitle}'`);
+        // Se não encontrou a conquista selecionada, reseta selectedManually e lastSelectedAchievementTitle
         if (!foundSelected) {
           selectedManually = "false";
           lastSelectedAchievementTitle = null;
-          // Se houver conquistas, renderiza a primeira automaticamente
-          if (filteredArray.length > 0) {
-            renderCard(filteredArray[0], usernameFormatted);
-          }
+          console.log('[selectedManually=false] Motivo: conquista manual não encontrada na lista.');
         }
-      } else {
-        // Se não há seleção manual, renderiza a primeira conquista ao carregar
-        if (filteredArray.length > 0 && selectedManually === "false") {
-          renderCard(filteredArray[0], usernameFormatted);
-        }
+        console.log(`[selectedManually=${selectedManually}] Após verificação da seleção manual.`);
+      }
+      // Se não há seleção manual ou não encontrou a conquista, faz auto render
+      if ((filteredArray.length > 0) && (selectedManually === "false") && (!selectedTitle || !foundSelected)) {
+        renderCard(filteredArray[0], usernameFormatted);
       }
     }
 

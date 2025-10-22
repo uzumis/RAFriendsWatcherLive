@@ -41,7 +41,7 @@ async function updateAchievementsCache() {
 }
 
 // Atualiza o cache a cada 30 segundos
-setInterval(updateAchievementsCache, 15000);
+setInterval(updateAchievementsCache, 30000);
 // Atualiza ao iniciar o servidor
 updateAchievementsCache();
 
