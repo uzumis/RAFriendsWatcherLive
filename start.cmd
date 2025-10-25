@@ -6,6 +6,7 @@ echo      RetroAchievementsGroupWatcher
 echo            Versão 1.0
 echo ==========================================
 
+
 :: Verifica e cria arquivos JSON necessários
 set JSONFILES=userData.json chievoData.json players.json
 for %%F in (%JSONFILES%) do (
@@ -13,6 +14,20 @@ for %%F in (%JSONFILES%) do (
         echo [] > "%%F"
         echo Arquivo %%F criado com conteúdo []
     )
+)
+
+
+:: Verifica e cria customaudio.json vazio se não existir
+if not exist "customaudio.json" (
+    echo {} > "customaudio.json"
+    echo Arquivo customaudio.json criado com conteúdo {}
+)
+
+:: Verifica e cria cache-achievements.json vazio se não existir
+if not exist "cache\cache-achievements.json" (
+    if not exist "cache" mkdir "cache"
+    echo {} > "cache\cache-achievements.json"
+    echo Arquivo cache\cache-achievements.json criado com conteúdo []
 )
 
 :: Verifica se o arquivo .env existe

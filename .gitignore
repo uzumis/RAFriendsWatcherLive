@@ -38,3 +38,9 @@ Thumbs.db
 som/*
 !som/
 !som/.gitkeep
+
+#Custon audio
+customaudio.json
+
+#Cache
+.cache/
