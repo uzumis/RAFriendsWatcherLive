@@ -1,5 +1,4 @@
-# Cache da API
-cache/
+
 # Node.js
 node_modules/
 npm-debug.log*
@@ -39,3 +38,9 @@ Thumbs.db
 som/*
 !som/
 !som/.gitkeep
+
+#Custon audio
+customaudio.json
+
+#Cache
+.cache/

@@ -1,6 +1,10 @@
 // API/widgetDoingChievo.js
 // Busca do backend a cada segundo
-
+let lastData = null;
+let lastUsername = '';
+let lastSelectedAchievementTitle = null;
+let selectedManually = "false";
+console.log("Inicializado selectedManually como:", selectedManually);
 let meme = [
   "está querendo a conquista",
   "está sofrendo por uma conquista",
@@ -43,34 +47,62 @@ if (!searchInput) {
   resultadoDiv.appendChild(searchInput);
 }
 let achArrayGlobal = [];
+let showMissableOnly = false;
 
-function renderProgression(achievements, username) {
+function renderProgression(achievements, username, selectedTitle) {
+
   resultadoDiv.innerHTML = '';
+  // Botão filtro missable
+  const missableBtn = document.createElement('button');
+  missableBtn.textContent = showMissableOnly ? 'Mostrar todas' : 'Mostrar só conquistas perdíveis (missable)';
+  missableBtn.style.margin = '0 0 10px 0';
+  missableBtn.style.background = '#222';
+  missableBtn.style.color = '#ff0';
+  missableBtn.style.border = '1px solid #ff0';
+  missableBtn.style.borderRadius = '6px';
+  missableBtn.style.padding = '6px 12px';
+  missableBtn.style.cursor = 'pointer';
+  missableBtn.onclick = function () {
+    showMissableOnly = !showMissableOnly;
+    missableBtn.textContent = showMissableOnly ? 'Mostrar todas' : 'Mostrar só conquistas perdíveis (missable)';
+    // Sempre re-renderiza a lista ao alternar o filtro
+    if (lastData && lastUsername) {
+      renderProgression(lastData, lastUsername, lastSelectedAchievementTitle);
+    }
+  };
+  resultadoDiv.appendChild(missableBtn);
   resultadoDiv.appendChild(searchInput);
   if (achievements && typeof achievements === 'object') {
     // Corrige o nome do usuário para primeira letra maiúscula
     const formatUsername = u => u ? u.charAt(0).toUpperCase() + u.slice(1) : '';
-    achArrayGlobal = Object.values(achievements).filter(a => !a.dateEarnedHardcore);
+    achArrayGlobal = Object.values(achievements)
+      .filter(a => !a.dateEarnedHardcore && !a.DateEarned);
+    let filteredArray = achArrayGlobal;
+    if (showMissableOnly) {
+      filteredArray = achArrayGlobal.filter(a => a.type === 'missable');
+    }
     const usernameFormatted = formatUsername(username);
-    if (achArrayGlobal.length === 0) {
+    if (filteredArray.length === 0) {
       const msg = document.createElement('div');
-      msg.textContent = 'conseguiu todas as conquistas';
+      msg.textContent = showMissableOnly ? 'Nenhuma conquista missable encontrada.' : 'conseguiu todas as conquistas';
       msg.style.color = '#ff0';
       msg.style.fontSize = '1.1em';
       msg.style.margin = '24px 0';
       resultadoDiv.appendChild(msg);
       // Card especial de todas as conquistas
-      document.getElementById('cardConquista').innerHTML = `
-        <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
-          <span style='font-size:64px;margin-right:16px;'>🏆</span>
-          <div style='flex:1;'>
-            <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${usernameFormatted} conseguiu todas as conquistas!</div>
-            <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>Parabéns!</div>
-            <div style='color:#fff;margin:8px 0;'>Você completou todos os desafios!</div>
-            <div style='color:#ff0;font-size:1em;'>Troféu máximo!</div>
+      if (!showMissableOnly) {
+        document.getElementById('cardConquista').innerHTML = `
+          <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
+            <span style='font-size:64px;margin-right:16px;'>🏆</span>
+            <div style='flex:1;'>
+              <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${usernameFormatted} conseguiu todas as conquistas!</div>
+              <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>Parabéns!</div>
+              <div style='color:#fff;margin:8px 0;'>Você completou todos os desafios!</div>
+              <div style='color:#ff0;font-size:1em;'>Troféu máximo!</div>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      }
     } else {
       const lista = document.createElement('ul');
       lista.style.listStyle = 'none';
@@ -83,8 +115,8 @@ function renderProgression(achievements, username) {
       lista.style.background = '#181818';
       lista.style.borderRadius = '8px';
       lista.style.border = '1px solid #333';
-      for (let i = 0; i < achArrayGlobal.length; i++) {
-        const achievement = achArrayGlobal[i];
+      for (let i = 0; i < filteredArray.length; i++) {
+        const achievement = filteredArray[i];
         const item = document.createElement('li');
         item.style.marginBottom = '12px';
         item.style.display = 'flex';
@@ -94,6 +126,7 @@ function renderProgression(achievements, username) {
         item.style.borderRadius = '8px';
         item.style.padding = '8px 12px';
         item.style.border = '1px solid #333';
+        item.style.display = 'flex';
 
         // Imagem
         const img = document.createElement('img');
@@ -116,16 +149,21 @@ function renderProgression(achievements, username) {
 
         // Título (botão)
         const btn = document.createElement('button');
-        btn.textContent = achievement.title;
         btn.style.background = '#333';
         btn.style.color = '#0ff';
         btn.style.border = '1px solid #0ff';
         btn.style.borderRadius = '6px';
         btn.style.padding = '6px 12px';
         btn.style.cursor = 'pointer';
-        btn.onclick = function() {
-          renderCard(achievement, usernameFormatted);
+        btn.onclick = function () {
+          console.log("Clicado na conquista:", achievement.title);
+          manualRenderCard(achievement, usernameFormatted);
         };
+        // Texto do botão
+        btn.innerHTML = achievement.title;
+        if (achievement.type === 'missable') {
+          btn.innerHTML += " <span style='color:#f00;font-weight:bold;'>! (M)</span>";
+        }
         contentDiv.appendChild(btn);
 
         // Descrição
@@ -140,31 +178,40 @@ function renderProgression(achievements, username) {
         lista.appendChild(item);
       }
       resultadoDiv.appendChild(lista);
-      // Seleciona a primeira conquista ao carregar
-      if (lista.children.length > 0) {
-        const btn = lista.children[0].querySelector('button');
-        if (btn) btn.click();
+      // Seleciona o card previamente clicado, se existir na lista
+  let foundSelected = false;
+  let selectedBtn = null;
+      if (selectedTitle) {
+        for (let item of lista.children) {
+          const btn = item.querySelector('button');
+          // Busca o id da conquista associada ao botão
+          const idx = Array.from(lista.children).indexOf(item);
+          const achievement = filteredArray[idx];
+          // Compara pelo id da conquista
+          console.log(`[compare] achievement.id: '${achievement && achievement.id}' | lastSelectedAchievementTitle: '${lastSelectedAchievementTitle}'`);
+          if (achievement && achievement.id && achievement.id === lastSelectedAchievementTitle) {
+            selectedBtn = btn;
+            foundSelected = true;
+            console.log(`[compare] foundSelected = true para id: '${achievement.id}'`);
+            break;
+          }
+        }
+        console.log(`[compare] Resultado final foundSelected: ${foundSelected} | selectedId: '${lastSelectedAchievementTitle}'`);
+        // Se não encontrou a conquista selecionada, reseta selectedManually e lastSelectedAchievementTitle
+        if (!foundSelected) {
+          selectedManually = "false";
+          lastSelectedAchievementTitle = null;
+          console.log('[selectedManually=false] Motivo: conquista manual não encontrada na lista.');
+        }
+        console.log(`[selectedManually=${selectedManually}] Após verificação da seleção manual.`);
+      }
+      // Se não há seleção manual ou não encontrou a conquista, faz auto render
+      if ((filteredArray.length > 0) && (selectedManually === "false") && (!selectedTitle || !foundSelected)) {
+        renderCard(filteredArray[0], usernameFormatted);
       }
     }
 
-    // Função para renderizar card
-    function renderCard(achievement, username) {
-      let badgeName = achievement.badgeName;
-      if (!achievement.dateEarnedHardcore) {
-        badgeName += '_lock';
-      }
-      document.getElementById('cardConquista').innerHTML = `
-        <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
-          <img src='https://media.retroachievements.org/Badge/${badgeName}.png' alt='Badge' style='width:64px;height:64px;border-radius:8px;border:2px solid #444;background:#222;'>
-          <div style='flex:1;'>
-            <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${username} ${meme[Math.floor(Math.random()*meme.length)]}:</div>
-            <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>${achievement.title}</div>
-            <div style='color:#fff;margin:8px 0;'>${achievement.description}</div>
-            <div style='color:#ff0;font-size:1em;'>${achievement.points} pontos</div>
-          </div>
-        </div>
-      `;
-    }
+
   } else {
     const msg = document.createElement('div');
     msg.textContent = 'Nenhuma conquista encontrada.';
@@ -172,18 +219,84 @@ function renderProgression(achievements, username) {
   }
 }
 
+
+
+
+// Renderização automática: só atualiza se não foi selecionado manualmente
+function renderCard(achievement, username) {
+  console.log("Auto render - SelectedManually:", selectedManually);
+  if (selectedManually == "true") {
+    console.log("Não alterando card por seleção manual.");
+    return;
+  }
+  let badgeName = achievement.badgeName;
+  if (!achievement.dateEarnedHardcore) {
+    badgeName += '_lock';
+  }
+  document.getElementById('cardConquista').innerHTML = `
+        <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
+        <img src='https://media.retroachievements.org/Badge/${badgeName}.png' alt='Badge' style='width:64px;height:64px;border-radius:8px;border:2px solid #444;background:#222;'>
+        <div style='flex:1;'>
+          <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${username} ${meme[Math.floor(Math.random() * meme.length)]}:</div>
+          <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>${achievement.title}</div>
+          <div style='color:#fff;margin:8px 0;'>${achievement.description}</div>
+          <div style='color:#ff0;font-size:1em;'>${achievement.points} pontos</div>
+        </div>
+      </div>
+    `;
+  lastSelectedAchievementTitle = achievement.id;
+}
+
+// Renderização manual: sempre atualiza e seta manual
+function manualRenderCard(achievement, username) {
+  console.log("Manual render - sempre atualiza card.");
+  let badgeName = achievement.badgeName;
+  if (!achievement.dateEarnedHardcore) {
+    badgeName += '_lock';
+  }
+  document.getElementById('cardConquista').innerHTML = `
+        <div style="background:#181818;border-radius:12px;padding:20px;box-shadow:0 2px 8px #000;width:350px;display:flex;align-items:center;gap:16px;font-family:sans-serif;">
+        <img src='https://media.retroachievements.org/Badge/${badgeName}.png' alt='Badge' style='width:64px;height:64px;border-radius:8px;border:2px solid #444;background:#222;'>
+        <div style='flex:1;'>
+          <div style='font-size:1em;font-weight:bold;color:#ff0;margin-bottom:8px;'>${username} ${meme[Math.floor(Math.random() * meme.length)]}:</div>
+          <div style='font-size:1.2em;font-weight:bold;color:#0ff;'>${achievement.title}</div>
+          <div style='color:#fff;margin:8px 0;'>${achievement.description}</div>
+          <div style='color:#ff0;font-size:1em;'>${achievement.points} pontos</div>
+        </div>
+      </div>
+    `;
+  lastSelectedAchievementTitle = achievement.id;
+  selectedManually = "true";
+  console.log('Atualizando cardConquista:', achievement.title, '| Seleção manual:', selectedManually);
+}
+
 // Filtro da lista (listener único)
-searchInput.addEventListener('input', function() {
+searchInput.addEventListener('input', function () {
   const termo = searchInput.value.toLowerCase();
   const lista = document.getElementById('conquistaLista');
   if (!lista) return;
+  // Usa o array filtrado conforme o filtro missable
+  let searchArray = achArrayGlobal;
+  if (showMissableOnly) {
+    searchArray = achArrayGlobal.filter(a => a.type === 'missable');
+  }
   for (const item of lista.children) {
     const btn = item.querySelector('button');
-    const achievement = achArrayGlobal.find(a => a.title === btn.textContent);
+    // Título limpo, sem o span de missable
+    const btnTitle = btn.textContent.replace(/ <span.*$/, '');
+    const achievement = searchArray.find(a => a.title === btnTitle);
     const titleMatch = btn.textContent.toLowerCase().includes(termo);
-    const descMatch = achievement && achievement.description && achievement.description.toLowerCase().includes(termo);
+    // Busca pela descrição do objeto ou, se não existir, pelo texto do DOM
+    let descText = '';
+    if (achievement && achievement.description) {
+      descText = achievement.description.toLowerCase();
+    } else {
+      const descDiv = item.querySelector('div');
+      if (descDiv) descText = descDiv.textContent.toLowerCase();
+    }
+    const descMatch = descText.includes(termo);
     if (titleMatch || descMatch) {
-      item.style.display = '';
+      item.style.display = 'flex';
     } else {
       item.style.display = 'none';
     }
@@ -191,8 +304,7 @@ searchInput.addEventListener('input', function() {
 });
 
 
-let lastData = null;
-let lastUsername = '';
+
 
 async function fetchAndUpdate() {
   try {
@@ -203,7 +315,7 @@ async function fetchAndUpdate() {
     if (JSON.stringify(data.achievements) !== JSON.stringify(lastData)) {
       lastData = data.achievements;
       lastUsername = data.username;
-      renderProgression(data.achievements, data.username);
+      renderProgression(data.achievements, data.username, lastSelectedAchievementTitle);
     }
   } catch (e) {
     // Não faz nada se der erro

@@ -7,6 +7,7 @@ let isShowingNotification = false;
 
 // IDs dos elementos do DOM usados
 const DOM_IDS = {
+    STANDARD: 'standard-achievement',
     POPUP: 'achievement-popup',
     TEXT: 'achievement-text',
     TITLE: 'conquista-titulo',
@@ -143,9 +144,9 @@ async function processAchievement(achievement) {
     icon.src = RA_URL + iconUrl;
     popup.style.display = 'flex';
     const chocolateBranco = document.getElementById(DOM_IDS.CHOCOLATE);
-    const specialAchievement = document.getElementById(DOM_IDS.SPECIAL); // Usar DOM_IDS.SPECIAL para specialAchievement
-    const audio = document.getElementById(DOM_IDS.AUDIO);
-    const superAchievement = document.getElementById(DOM_IDS.FIFTY); // Usar DOM_IDS.FIFTY para superAchievement
+    const specialAchievement = document.getElementById(DOM_IDS.SPECIAL);
+    let audio = document.getElementById(DOM_IDS.AUDIO);
+    const superAchievement = document.getElementById(DOM_IDS.FIFTY);
     // Garante que nenhum som fique tocando junto
     [chocolateBranco, specialAchievement, audio, superAchievement].forEach(aud => {
         if (aud) {
@@ -153,13 +154,32 @@ async function processAchievement(achievement) {
             aud.currentTime = 0;
         }
     });
-    if (player === 'lulinhaa') {
-        if (chocolateBranco) chocolateBranco.play();
-    } else if (Number(chievoPoints) === 25) {
-        if (specialAchievement) specialAchievement.play();
-    } else if (Number(chievoPoints) >= 50) {
-        if (superAchievement) superAchievement.play();
+    let played = false;
+    // Sempre tenta tocar o custom, mas se não houver, usa o padrão para todas as raridades
+    let customPlayed = false;
+    if (player === 'lulinhaa' && chocolateBranco) {
+        chocolateBranco.play();
+        customPlayed = true;
+    } else if (Number(chievoPoints) === 25 && specialAchievement) {
+        specialAchievement.play();
+        customPlayed = true;
+    } else if (Number(chievoPoints) >= 50 && superAchievement) {
+        superAchievement.play();
+        customPlayed = true;
     } else if (audio) {
+        audio.play();
+        customPlayed = true;
+    }
+    if (!customPlayed) {
+        if (!audio) {
+            audio = document.createElement('audio');
+            audio.id = DOM_IDS.AUDIO;
+            audio.src = './som/chievosound.mp3';
+            document.body.appendChild(audio);
+        } else {
+            audio.src = './som/chievosound.mp3';
+        }
+        audio.currentTime = 0;
         audio.play();
     }
     await new Promise(resolve => setTimeout(resolve, 6000));

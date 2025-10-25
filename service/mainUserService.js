@@ -50,7 +50,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     // Se o cache existe e foi atualizado nos últimos 35 segundos, retorna do cache
-    if (cacheData && Date.now() - lastUpdate < 35000) {
+    if (cacheData && Date.now() - lastUpdate < 5000) {
       // Retorna todos os dados do cache, exceto achievements
       const { achievements, ...userData } = cacheData;
       return res.json(userData);
@@ -73,7 +73,7 @@ router.get('/', async (req, res) => {
 router.get('/achievements', async (req, res) => {
   try {
     // Se o cache existe e foi atualizado nos últimos 35 segundos, retorna do cache
-    if (cacheData && Date.now() - lastUpdate < 35000) {
+    if (cacheData && Date.now() - lastUpdate < 5000) {
       return res.json({ username: cacheData.username, achievements: cacheData.achievements });
     }
     // Se não, tenta ler do arquivo
