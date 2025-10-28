@@ -18,5 +18,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "Este projeto é um sistema para monitorar conquistas de jogadores em grupo, exibindo tabelas, histórico e gerenciamento de usuários do RetroAchievement. Este projeto é um sistema para monitorar conquistas de jogadores em grupo, exibindo tabelas, histórico e gerenciamento de usuários do RetroAchievement.",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uzumis/RAFriendsWatcherLive.git"
+  },
+  "bugs": {
+    "url": "https://github.com/uzumis/RAFriendsWatcherLive/issues"
+  },
+  "homepage": "https://github.com/uzumis/RAFriendsWatcherLive#readme"
 }

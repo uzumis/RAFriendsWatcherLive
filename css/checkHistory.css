@@ -1,3 +1,74 @@
+/* BOTÕES SUPERIORES */
+
+#import-chievo {
+  background-image: url(/assets/ImportAchievements.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border: none;
+  width: 2.6vw;
+  height: 2.6vw;
+  cursor: pointer;
+  margin-left: 0.3vw;
+  margin-top: 0.3vw;
+}
+#import-chievo:hover {
+  background-image: url(/assets/ImportAchievements.gif);
+}
+
+#export-chievo {
+  background-image: url(/assets/ExportAchievements.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border: none;
+  width: 2.6vw;
+  height: 2.6vw;
+  cursor: pointer;
+  margin-left: 2vw;
+  margin-top: 0.3vw;
+}
+#export-chievo:hover {
+  background-image: url(/assets/ExportAchievements.gif);
+}
+
+#import-players {
+  background-image: url(/assets/ImportPlayers.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border: none;
+  width: 2.6vw;
+  height: 2.6vw;
+  cursor: pointer;
+  margin-left: 0.3vw;
+  margin-top: 0.3vw;
+}
+#import-players:hover {
+  background-image: url(/assets/ImportPlayers.gif);
+}
+
+#export-players {
+  background-image: url(/assets/ExportPlayers.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border: none;
+  width: 2.6vw;
+  height: 2.6vw;
+  cursor: pointer;
+  margin-left: 0.3vw;
+  margin-top: 0.3vw;
+}
+#export-players:hover {
+  background-image: url(/assets/ExportPlayers.gif);
+}
+
+
 body {
   background: #181c24;
   color: #f2f2f2;
